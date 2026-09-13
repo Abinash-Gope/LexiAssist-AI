@@ -1,115 +1,127 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Scale, FileText, GitCompare, BookOpen, Cpu, ShieldCheck, Trash2, ArrowRight } from 'lucide-react';
-import { CompliancePill } from '../ui/CompliancePill';
+import { Scale, ArrowRight, Menu, X, Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { useAppDispatch, useAppSelector } from '@/state/store';
-import { setActivePreset } from '@/state/slices/contractUiSlice';
-import { wipeSessionData } from '@/state/slices/uiSlice';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
-  const dispatch = useAppDispatch();
-  const { activePreset } = useAppSelector((state) => state.contractUi);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navLinks = [
-    { path: '/dashboard', label: 'Workspace', icon: FileText },
-    { path: '/compare', label: 'Contract Diff', icon: GitCompare },
-    { path: '/prep-kit', label: 'Lawyer Prep Kit', icon: BookOpen },
-    { path: '/architecture', label: 'GenAI Architecture', icon: Cpu },
+  const publicNavLinks = [
+    { path: '/features', label: 'Features' },
+    { path: '/how-it-works', label: 'How It Works' },
+    { path: '/pricing', label: 'Pricing' },
+    { path: '/security', label: 'Security' },
+    { path: '/faq', label: 'FAQ' },
   ];
 
-  const handleWipeData = () => {
-    if (window.confirm('Wipe all ephemeral session contracts and chat history? This guarantees 100% zero data retention.')) {
-      dispatch(wipeSessionData());
-      window.location.reload();
-    }
-  };
-
   return (
-    <header className="sticky top-0 z-40 bg-surface-light/95 backdrop-blur-md border-b border-border-light shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-slate-200/70 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+        <div className="flex items-center justify-between h-14">
           {/* Brand Logo */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white shadow-level-1 group-hover:bg-primary-hover transition-colors">
-                <Scale className="w-5 h-5 text-brand-foreground" />
+              <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm group-hover:bg-primary-hover group-hover:scale-105 transition-all">
+                <Scale className="w-3.5 h-3.5 text-brand-subtle" />
               </div>
-              <div>
-                <span className="font-headline font-bold text-lg text-primary tracking-tight">
+              <div className="flex items-center">
+                <span className="font-headline font-bold text-sm sm:text-base text-primary tracking-tight">
                   LexiAssist<span className="text-brand">AI</span>
                 </span>
-                <span className="hidden sm:inline-block ml-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 border border-slate-200 px-1.5 py-0.2 rounded">
+                <span className="hidden sm:inline-flex ml-2 text-[9px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 border border-slate-200/70 px-1.5 py-0.5 rounded">
                   Legal Access
                 </span>
               </div>
             </Link>
-
-            {/* Document Switcher Dropdown (Visible on Dashboard/Diff) */}
-            <div className="hidden lg:flex items-center gap-2 pl-4 border-l border-border-light">
-              <span className="text-xs text-slate-500 font-medium">Active Contract:</span>
-              <select
-                value={activePreset}
-                onChange={(e) => dispatch(setActivePreset(e.target.value as any))}
-                className="text-xs font-semibold text-primary bg-surface-dim border border-border-light rounded-md px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-brand cursor-pointer hover:bg-slate-200 transition-colors"
-              >
-                <option value="LEASE">📄 Residential Lease 2026 (NY)</option>
-                <option value="MSA">💼 Freelance Master Services (MSA)</option>
-                <option value="CUSTOM">📤 Uploaded Custom Agreement</option>
-              </select>
-            </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
+          {/* Modern Floating Pill Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200/60 shadow-xs">
+            {publicNavLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link
-                  key={link.path}
+                  key={link.label}
                   to={link.path}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-3.5 py-1 rounded-full text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-primary text-white shadow-level-1'
-                      : 'text-slate-600 hover:text-primary hover:bg-surface-dim'
+                      ? 'bg-white text-primary font-semibold shadow-xs'
+                      : 'text-slate-600 hover:text-primary hover:bg-white/60'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
                   {link.label}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Compliance Guardrail & Actions */}
-          <div className="flex items-center gap-3">
-            <CompliancePill className="hidden xl:inline-flex" />
-
-            <button
-              onClick={handleWipeData}
-              title="1-Click Ephemeral Data Wipe: Deletes all session text and chats"
-              className="p-2 text-slate-400 hover:text-risk-high hover:bg-red-50 rounded-lg border border-transparent hover:border-risk-high-border transition-all"
+          {/* Right Desktop CTAs: Route to Login */}
+          <div className="hidden md:flex items-center gap-2.5">
+            <Link
+              to="/login"
+              className="text-xs font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100/60 transition-colors"
             >
-              <Trash2 className="w-4 h-4" />
-            </button>
-
-            <Link to="/login">
-              <Button size="sm" variant="outline" className="hidden sm:inline-flex text-xs">
-                Sign In
-              </Button>
+              Sign In
             </Link>
 
-            <Link to="/dashboard">
-              <Button size="sm" variant="brand" className="text-xs font-semibold">
-                <span>Launch App</span>
+            <Link to="/login">
+              <Button size="sm" variant="brand" className="text-xs font-semibold shadow-sm px-3.5 h-8 gap-1.5 rounded-lg">
+                <span>Get Started</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
           </div>
+
+          {/* Mobile Menu Trigger */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link to="/login">
+              <Button size="sm" variant="brand" className="text-xs h-8 px-2.5">
+                Sign In
+              </Button>
+            </Link>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-1.5 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 focus:outline-none"
+              aria-label="Toggle Navigation Menu"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Drawer Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-b border-border-light bg-surface-light px-4 pt-2 pb-6 space-y-3 animate-fade-in shadow-lg">
+          <div className="flex flex-col space-y-1.5 pt-1">
+            {publicNavLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-3 py-2 text-xs font-semibold text-slate-700 hover:text-brand hover:bg-surface-dim rounded-lg transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="pt-3 border-t border-border-light flex flex-col gap-2">
+            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+              <Button variant="outline" size="sm" className="w-full text-xs">
+                Sign In to Workspace
+              </Button>
+            </Link>
+            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+              <Button variant="brand" size="sm" className="w-full text-xs font-semibold">
+                <span>Get Started Free</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

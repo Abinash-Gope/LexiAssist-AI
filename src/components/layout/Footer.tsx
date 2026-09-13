@@ -32,27 +32,37 @@ export const Footer: React.FC = () => {
           {/* Quick Navigation */}
           <div>
             <h4 className="text-white font-semibold mb-3 uppercase tracking-wider text-[11px]">
-              Platform Views
+              Platform
             </h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/dashboard" className="hover:text-white transition-colors">
-                  Document Workspace
+                <Link to="/features" className="hover:text-white transition-colors">
+                  Core Capabilities
                 </Link>
               </li>
               <li>
-                <Link to="/compare" className="hover:text-white transition-colors">
-                  Side-by-Side Diff
+                <Link to="/how-it-works" className="hover:text-white transition-colors">
+                  How It Works
                 </Link>
               </li>
               <li>
-                <Link to="/prep-kit" className="hover:text-white transition-colors">
-                  Lawyer Prep Kit Brief
+                <Link to="/pricing" className="hover:text-white transition-colors">
+                  Pricing & Access
                 </Link>
               </li>
               <li>
-                <Link to="/architecture" className="hover:text-white transition-colors">
-                  GenAI Architecture
+                <Link to="/security" className="hover:text-white transition-colors">
+                  Security & Ephemeral Privacy
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq" className="hover:text-white transition-colors">
+                  Frequently Asked Questions
+                </Link>
+              </li>
+              <li>
+                <Link to="/login" className="hover:text-white transition-colors">
+                  Sign In to Workspace
                 </Link>
               </li>
             </ul>
@@ -67,7 +77,7 @@ export const Footer: React.FC = () => {
               Theme: AI for Legal Assistance & Access
             </p>
             <p className="text-slate-500 text-[11px]">
-              Powered by Google Gemini Flash & React 4-Layer Architecture.
+              PromptWars Hackathon Project • Built with React & Unidirectional 4-Layer Architecture.
             </p>
           </div>
         </div>

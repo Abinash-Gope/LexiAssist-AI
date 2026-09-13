@@ -12,10 +12,14 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { LandingPage } from '@/pages/LandingPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { SignUpPage } from '@/pages/SignUpPage';
+import { FeaturesPage } from '@/pages/FeaturesPage';
+import { HowItWorksPage } from '@/pages/HowItWorksPage';
+import { PricingPage } from '@/pages/PricingPage';
+import { SecurityPage } from '@/pages/SecurityPage';
+import { FaqPage } from '@/pages/FaqPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { ComparePage } from '@/pages/ComparePage';
 import { PrepKitPage } from '@/pages/PrepKitPage';
-import { ArchitecturePage } from '@/pages/ArchitecturePage';
 
 export const router = createBrowserRouter([
   // Public Marketing & Onboarding Routes
@@ -29,16 +33,32 @@ export const router = createBrowserRouter([
         element: <LandingPage />,
       },
       {
+        path: 'features',
+        element: <FeaturesPage />,
+      },
+      {
+        path: 'how-it-works',
+        element: <HowItWorksPage />,
+      },
+      {
+        path: 'pricing',
+        element: <PricingPage />,
+      },
+      {
+        path: 'security',
+        element: <SecurityPage />,
+      },
+      {
+        path: 'faq',
+        element: <FaqPage />,
+      },
+      {
         path: 'login',
         element: <LoginPage />,
       },
       {
         path: 'signup',
         element: <SignUpPage />,
-      },
-      {
-        path: 'architecture',
-        element: <ArchitecturePage />,
       },
     ],
   },
