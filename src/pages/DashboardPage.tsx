@@ -1,12 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, GitCompare, BookOpen, MessageSquare, Sparkles, AlertCircle } from 'lucide-react';
+import { Upload, GitCompare, BookOpen } from 'lucide-react';
 import { useDocumentAnalysis } from '@/hooks/useDocumentAnalysis';
 import { useSampleContract } from '@/hooks/useSampleContract';
 import { DocumentViewer } from '@/components/features/document/DocumentViewer';
 import { RiskGaugeMeter } from '@/components/features/analysis/RiskGaugeMeter';
 import { ClauseDeconstructionCard } from '@/components/features/analysis/ClauseDeconstructionCard';
 import { ChatDrawer } from '@/components/features/chat/ChatDrawer';
+import { ContractUploadModal } from '@/components/features/document/ContractUploadModal';
 import { Button } from '@/components/ui/Button';
 
 export const DashboardPage: React.FC = () => {
@@ -24,15 +25,12 @@ export const DashboardPage: React.FC = () => {
     adjustZoom,
   } = useDocumentAnalysis();
 
-  const { uploadFile } = useSampleContract();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadFile, loadPreset } = useSampleContract();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      uploadFile(file);
-    }
-  };
+  /** Citation pulse id lifted from ChatDrawer to pass into DocumentViewer */
+  const [citationPulseId, setCitationPulseId] = useState<string | null>(null);
+  /** Controls visibility of the Contract Upload Modal */
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   return (
     <div className="max-w-[1700px] mx-auto px-4 sm:px-6 py-6 space-y-6">
@@ -47,24 +45,33 @@ export const DashboardPage: React.FC = () => {
               {document?.title || 'Legal Document Workstation'}
             </h1>
             <p className="text-xs text-slate-500">
-              Interactive plain-English deconstruction, risk scoring & grounded citations.
+              Interactive plain-English deconstruction, risk scoring &amp; grounded citations.
             </p>
           </div>
         </div>
 
+        {/* Contract Preset Switcher */}
+        <div className="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
+          <button
+            onClick={() => loadPreset('LEASE')}
+            className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-primary shadow-sm border border-border-light hover:bg-slate-50"
+          >
+            🏠 Residential Lease
+          </button>
+          <button
+            onClick={() => loadPreset('MSA')}
+            className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-slate-600 hover:bg-white hover:shadow-sm"
+          >
+            📄 Freelancer MSA
+          </button>
+        </div>
+
         {/* Global Action Triggers */}
         <div className="flex items-center gap-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".txt,.md,.pdf"
-            className="hidden"
-          />
           <Button
             size="sm"
             variant="outline"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setIsUploadModalOpen(true)}
             className="text-xs"
           >
             <Upload className="w-3.5 h-3.5 mr-1 text-slate-500" />
@@ -101,6 +108,7 @@ export const DashboardPage: React.FC = () => {
             onRiskFilterChange={setRiskFilter}
             zoom={documentZoom}
             onZoomChange={adjustZoom}
+            citationPulseId={citationPulseId}
           />
         </div>
 
@@ -120,9 +128,17 @@ export const DashboardPage: React.FC = () => {
           <ClauseDeconstructionCard clause={selectedClause} />
 
           {/* Embedded Document Chat Assistant */}
-          <ChatDrawer document={document} />
+          <ChatDrawer document={document} onCitationPulse={setCitationPulseId} />
         </div>
       </div>
+
+      {/* Contract Upload Modal */}
+      <ContractUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUploadFile={uploadFile}
+        onLoadPreset={loadPreset}
+      />
     </div>
   );
 };

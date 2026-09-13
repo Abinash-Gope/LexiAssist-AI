@@ -26,6 +26,8 @@ export function useDocumentChat(document: ContractDocument | undefined) {
   ]);
 
   const [inputQuery, setInputQuery] = useState('');
+  /** Tracks which clauseId to pulse-highlight in the DocumentViewer when a citation is clicked */
+  const [citationPulseId, setCitationPulseId] = useState<string | null>(null);
 
   const promptSuggestions = [
     'What is the automatic renewal penalty?',
@@ -66,7 +68,16 @@ export function useDocumentChat(document: ContractDocument | undefined) {
   };
 
   const handleCitationClick = (clauseId: string) => {
+    // Select the clause in global state (triggers scroll in DocumentViewer)
     dispatch(setSelectedClauseId(clauseId));
+
+    // Reset then set to guarantee the useEffect in DocumentViewer fires even for same id
+    setCitationPulseId(null);
+    requestAnimationFrame(() => {
+      setCitationPulseId(clauseId);
+      // Auto-clear after animation duration so it can be re-triggered
+      setTimeout(() => setCitationPulseId(null), 2500);
+    });
   };
 
   return {
@@ -74,6 +85,7 @@ export function useDocumentChat(document: ContractDocument | undefined) {
     inputQuery,
     isLoading: chatMutation.isPending,
     promptSuggestions,
+    citationPulseId,
     setInputQuery,
     sendMessage: handleSendMessage,
     clickCitation: handleCitationClick,

@@ -6,18 +6,26 @@ import { Button } from '../../ui/Button';
 
 interface ChatDrawerProps {
   document: ContractDocument | undefined;
+  /** Callback fired with clauseId when a citation pill is clicked, so parent can pass it to DocumentViewer */
+  onCitationPulse?: (clauseId: string | null) => void;
 }
 
-export const ChatDrawer: React.FC<ChatDrawerProps> = ({ document }) => {
+export const ChatDrawer: React.FC<ChatDrawerProps> = ({ document, onCitationPulse }) => {
   const {
     messages,
     inputQuery,
     isLoading,
     promptSuggestions,
+    citationPulseId,
     setInputQuery,
     sendMessage,
     clickCitation,
   } = useDocumentChat(document);
+
+  // Sync citationPulseId up to parent (DashboardPage) whenever it changes
+  React.useEffect(() => {
+    if (onCitationPulse) onCitationPulse(citationPulseId ?? null);
+  }, [citationPulseId, onCitationPulse]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();

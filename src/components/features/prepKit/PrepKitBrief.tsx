@@ -1,5 +1,5 @@
-import React from 'react';
-import { Download, FileText, Printer, CheckCircle2, AlertCircle, AlertTriangle, Scale, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Download, FileText, CheckCircle2, AlertCircle, AlertTriangle, Scale, ShieldCheck, PenLine, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLawyerPrepKit } from '@/hooks/useLawyerPrepKit';
 import { ContractDocument } from '@/core/types/contract.types';
 import { Button } from '../../ui/Button';
@@ -10,7 +10,27 @@ interface PrepKitBriefProps {
 }
 
 export const PrepKitBrief: React.FC<PrepKitBriefProps> = ({ document }) => {
-  const { prepKit, isLoading, error, exportPdf, exportMarkdown } = useLawyerPrepKit(document);
+  const [customNotes, setCustomNotes] = useState<string[]>([
+    'What is the estimated total cost exposure if I breach this agreement early?',
+  ]);
+  const [newNote, setNewNote] = useState('');
+  const [showNotesEditor, setShowNotesEditor] = useState(true);
+
+  const { prepKit, isLoading, error, exportPdf, exportMarkdown } = useLawyerPrepKit(
+    document,
+    customNotes
+  );
+
+  const addNote = () => {
+    if (newNote.trim()) {
+      setCustomNotes((prev) => [...prev, newNote.trim()]);
+      setNewNote('');
+    }
+  };
+
+  const removeNote = (index: number) => {
+    setCustomNotes((prev) => prev.filter((_, i) => i !== index));
+  };
 
   if (isLoading || !prepKit) {
     return (
@@ -35,26 +55,89 @@ export const PrepKitBrief: React.FC<PrepKitBriefProps> = ({ document }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={exportMarkdown}
-            className="text-xs h-9"
-          >
+          <Button size="sm" variant="outline" onClick={() => exportMarkdown(customNotes)} className="text-xs h-9">
             <FileText className="w-3.5 h-3.5 mr-1 text-slate-500" />
             <span>Export Markdown</span>
           </Button>
 
-          <Button
-            size="sm"
-            variant="brand"
-            onClick={exportPdf}
-            className="text-xs h-9 font-semibold"
-          >
+          <Button size="sm" variant="brand" onClick={() => exportPdf(customNotes)} className="text-xs h-9 font-semibold">
             <Download className="w-3.5 h-3.5 mr-1" />
             <span>Download PDF Brief</span>
           </Button>
         </div>
+      </div>
+
+      {/* Personal Consultation Notes Editor */}
+      <div className="bg-amber-50 border border-amber-200 rounded-xl overflow-hidden">
+        <button
+          onClick={() => setShowNotesEditor(!showNotesEditor)}
+          className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-amber-100/50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <PenLine className="w-4 h-4 text-amber-700" />
+            <span className="text-sm font-bold text-amber-900">
+              My Personal Consultation Notes
+            </span>
+            <span className="text-[11px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
+              {customNotes.length} note{customNotes.length !== 1 ? 's' : ''} — included in PDF
+            </span>
+          </div>
+          {showNotesEditor ? (
+            <ChevronUp className="w-4 h-4 text-amber-700" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-amber-700" />
+          )}
+        </button>
+
+        {showNotesEditor && (
+          <div className="px-5 pb-5 space-y-3 border-t border-amber-200">
+            <p className="text-[11px] text-amber-700 mt-3">
+              Add your own questions or concerns — they will be included as a personal notes section in the exported PDF brief.
+            </p>
+
+            {/* Existing notes */}
+            <div className="space-y-2">
+              {customNotes.map((note, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-2 bg-white border border-amber-200 rounded-lg px-3 py-2.5 group"
+                >
+                  <span className="w-4 h-4 rounded-full bg-amber-200 text-amber-800 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {index + 1}
+                  </span>
+                  <p className="text-xs text-slate-800 flex-1 leading-relaxed">{note}</p>
+                  <button
+                    onClick={() => removeNote(index)}
+                    className="text-slate-300 hover:text-red-500 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add new note */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addNote()}
+                placeholder="Type a question or concern to ask your attorney..."
+                className="flex-1 px-3 py-2 text-xs bg-white border border-amber-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={addNote}
+                disabled={!newNote.trim()}
+                className="text-xs border-amber-300 text-amber-800 hover:bg-amber-100"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Printable Brief Paper Container */}
@@ -180,6 +263,25 @@ export const PrepKitBrief: React.FC<PrepKitBriefProps> = ({ document }) => {
           </div>
         </div>
 
+        {/* Section 4: Personal Notes (if any) */}
+        {customNotes.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 font-sans border-b border-border-light pb-2">
+              4. My Personal Notes & Additional Questions
+            </h3>
+            <div className="space-y-2">
+              {customNotes.map((note, i) => (
+                <div key={i} className="flex items-start gap-2 p-3 bg-amber-50/60 border border-amber-200 rounded-lg">
+                  <span className="w-5 h-5 rounded-full bg-amber-400 text-white text-[10px] flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                    {i + 1}
+                  </span>
+                  <p className="text-xs text-amber-950 leading-relaxed">{note}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Legal Disclaimer Box */}
         <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1">
           <div className="font-bold flex items-center gap-1.5 text-amber-900">
@@ -194,3 +296,4 @@ export const PrepKitBrief: React.FC<PrepKitBriefProps> = ({ document }) => {
     </div>
   );
 };
+

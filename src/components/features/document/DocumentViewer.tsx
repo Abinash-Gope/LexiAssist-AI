@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { ZoomIn, ZoomOut, Search, FileText, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import { ContractDocument, ContractClause } from '@/core/types/contract.types';
 
@@ -12,6 +12,8 @@ interface DocumentViewerProps {
   onRiskFilterChange: (filter: 'ALL' | 'HIGH' | 'MEDIUM' | 'LOW') => void;
   zoom: number;
   onZoomChange: (delta: number) => void;
+  /** When set, this clauseId receives a temporary glow-pulse to indicate a chat citation jump */
+  citationPulseId?: string | null;
 }
 
 export const DocumentViewer: React.FC<DocumentViewerProps> = ({
@@ -24,9 +26,12 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   onRiskFilterChange,
   zoom,
   onZoomChange,
+  citationPulseId,
 }) => {
   const clauseRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [pulsingId, setPulsingId] = useState<string | null>(null);
 
+  // Scroll to selected clause whenever it changes
   useEffect(() => {
     if (selectedClauseId && clauseRefs.current[selectedClauseId]) {
       clauseRefs.current[selectedClauseId]?.scrollIntoView({
@@ -35,6 +40,15 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
       });
     }
   }, [selectedClauseId]);
+
+  // Fire pulse animation when a citation jump is triggered from chat
+  useEffect(() => {
+    if (citationPulseId) {
+      setPulsingId(citationPulseId);
+      const timer = setTimeout(() => setPulsingId(null), 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [citationPulseId]);
 
   if (!document) {
     return (
@@ -162,6 +176,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                 );
               }
 
+              const isPulsing = clause.id === pulsingId;
+
               return (
                 <div
                   key={clause.id}
@@ -169,8 +185,21 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                   onClick={() => onSelectClause(clause.id)}
                   className={`p-4 rounded-r-lg transition-all cursor-pointer ${riskBorder} ${riskBg} ${
                     isSelected ? 'ring-1 ring-slate-400/50 shadow-sm' : ''
-                  }`}
+                  } ${isPulsing ? 'citation-pulse-glow' : ''}`}
+                  style={
+                    isPulsing
+                      ? {
+                          animation: 'citationPulse 2.2s ease-out',
+                        }
+                      : undefined
+                  }
                 >
+                  {isPulsing && (
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-brand bg-brand/10 border border-brand/30 px-2 py-0.5 rounded mb-2 w-fit">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand animate-ping inline-block" />
+                      Cited in Copilot Answer
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-2 mb-2 font-sans">
                     <span className="text-xs font-bold text-primary font-mono tracking-wide">
                       {clause.sectionNumber}: {clause.title}
