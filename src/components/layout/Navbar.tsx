@@ -18,18 +18,18 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-slate-200/70 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-14 gap-4">
           {/* Brand Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="flex items-center flex-shrink-0">
+            <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
               <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm group-hover:bg-primary-hover group-hover:scale-105 transition-all">
                 <Scale className="w-3.5 h-3.5 text-brand-subtle" />
               </div>
               <div className="flex items-center">
-                <span className="font-headline font-bold text-sm sm:text-base text-primary tracking-tight">
+                <span className="font-headline font-bold text-sm sm:text-base text-primary tracking-tight whitespace-nowrap">
                   LexiAssist<span className="text-brand">AI</span>
                 </span>
-                <span className="hidden sm:inline-flex ml-2 text-[9px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 border border-slate-200/70 px-1.5 py-0.5 rounded">
+                <span className="hidden sm:inline-flex ml-2 text-[9px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 border border-slate-200/70 px-1.5 py-0.5 rounded whitespace-nowrap">
                   Legal Access
                 </span>
               </div>
@@ -37,14 +37,14 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Modern Floating Pill Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200/60 shadow-xs">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200/60 shadow-xs flex-shrink-0">
             {publicNavLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link
                   key={link.label}
                   to={link.path}
-                  className={`px-3.5 py-1 rounded-full text-xs font-medium transition-all ${
+                  className={`px-3.5 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
                     isActive
                       ? 'bg-white text-primary font-semibold shadow-xs'
                       : 'text-slate-600 hover:text-primary hover:bg-white/60'
@@ -57,16 +57,16 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Right Desktop CTAs: Route to Login */}
-          <div className="hidden md:flex items-center gap-2.5">
+          <div className="hidden md:flex items-center gap-2.5 flex-shrink-0">
             <Link
               to="/login"
-              className="text-xs font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100/60 transition-colors"
+              className="text-xs font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100/60 transition-colors whitespace-nowrap"
             >
               Sign In
             </Link>
 
-            <Link to="/login">
-              <Button size="sm" variant="brand" className="text-xs font-semibold shadow-sm px-3.5 h-8 gap-1.5 rounded-lg">
+            <Link to="/login" className="flex-shrink-0">
+              <Button size="sm" variant="brand" className="text-xs font-semibold shadow-sm px-3.5 h-8 gap-1.5 rounded-lg whitespace-nowrap">
                 <span>Get Started</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>

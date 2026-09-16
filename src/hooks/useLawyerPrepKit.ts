@@ -6,13 +6,18 @@
 import { jsPDF } from 'jspdf';
 import { usePrepKitQuery } from '@/state/queries/usePrepKitQuery';
 import { ContractDocument } from '@/core/types/contract.types';
+import { synthesizeLocalPrepKit } from '@/core/api/httpClient';
 
 export function useLawyerPrepKit(
   document: ContractDocument | undefined,
   /** Optional custom notes to include in exports (passed from PrepKitBrief) */
   customNotes?: string[]
 ) {
-  const { data: prepKit, isLoading, error } = usePrepKitQuery(document);
+  const { data: queryPrepKit, isLoading: isQueryLoading, error } = usePrepKitQuery(document);
+
+  // Guarantee instant synthesis fallback so Prep Kit is never stuck on a loading screen
+  const prepKit = queryPrepKit || (document ? synthesizeLocalPrepKit(document) : undefined);
+  const isLoading = isQueryLoading && !prepKit;
 
   const exportAsPdf = (notes?: string[]) => {
     if (!prepKit) return;

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Upload, GitCompare, BookOpen } from 'lucide-react';
 import { useDocumentAnalysis } from '@/hooks/useDocumentAnalysis';
 import { useSampleContract } from '@/hooks/useSampleContract';
+import { useAppSelector } from '@/state/store';
 import { DocumentViewer } from '@/components/features/document/DocumentViewer';
 import { RiskGaugeMeter } from '@/components/features/analysis/RiskGaugeMeter';
 import { ClauseDeconstructionCard } from '@/components/features/analysis/ClauseDeconstructionCard';
@@ -16,16 +17,20 @@ export const DashboardPage: React.FC = () => {
     isLoading,
     selectedClause,
     selectedClauseId,
+    filteredClauses,
     searchFilter,
     activeRiskFilter,
     documentZoom,
+    activePreset,
     selectClause,
     setSearch,
     setRiskFilter,
     adjustZoom,
+    switchPreset,
   } = useDocumentAnalysis();
 
   const { uploadFile, loadPreset } = useSampleContract();
+  const { customContractText, customContractTitle } = useAppSelector((state) => state.contractUi);
 
   /** Citation pulse id lifted from ChatDrawer to pass into DocumentViewer */
   const [citationPulseId, setCitationPulseId] = useState<string | null>(null);
@@ -51,19 +56,40 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Contract Preset Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
+        <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 rounded-lg p-1">
           <button
-            onClick={() => loadPreset('LEASE')}
-            className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all bg-white text-primary shadow-sm border border-border-light hover:bg-slate-50"
+            onClick={() => switchPreset('LEASE')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              activePreset === 'LEASE'
+                ? 'bg-white text-primary shadow-xs border border-border-light'
+                : 'text-slate-600 hover:bg-white/80'
+            }`}
           >
             🏠 Residential Lease
           </button>
           <button
-            onClick={() => loadPreset('MSA')}
-            className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-slate-600 hover:bg-white hover:shadow-sm"
+            onClick={() => switchPreset('MSA')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+              activePreset === 'MSA'
+                ? 'bg-white text-primary shadow-xs border border-border-light'
+                : 'text-slate-600 hover:bg-white/80'
+            }`}
           >
             📄 Freelancer MSA
           </button>
+          {customContractText && (
+            <button
+              onClick={() => switchPreset('CUSTOM')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 ${
+                activePreset === 'CUSTOM'
+                  ? 'bg-purple-900 text-white shadow-xs'
+                  : 'text-purple-700 bg-purple-50 hover:bg-purple-100/80 border border-purple-200'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-purple-400 inline-block animate-pulse" />
+              <span>✨ {customContractTitle || 'Uploaded Agreement'}</span>
+            </button>
+          )}
         </div>
 
         {/* Global Action Triggers */}
@@ -79,9 +105,14 @@ export const DashboardPage: React.FC = () => {
           </Button>
 
           <Link to="/compare">
-            <Button size="sm" variant="secondary" className="text-xs">
+            <Button size="sm" variant="secondary" className="text-xs relative">
               <GitCompare className="w-3.5 h-3.5 mr-1 text-slate-600" />
               <span>Compare Versions</span>
+              {customContractText && (
+                <span className="ml-1.5 text-[10px] bg-purple-100 text-purple-800 font-bold px-1.5 py-0.2 rounded-full border border-purple-200">
+                  Ready
+                </span>
+              )}
             </Button>
           </Link>
 
@@ -109,6 +140,7 @@ export const DashboardPage: React.FC = () => {
             zoom={documentZoom}
             onZoomChange={adjustZoom}
             citationPulseId={citationPulseId}
+            filteredClauses={filteredClauses}
           />
         </div>
 

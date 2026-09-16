@@ -6,7 +6,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type DiffFilter = 'ALL' | 'HIGH_RISK_ONLY' | 'FINANCIAL_ONLY';
+export type DiffFilter = 'ALL' | 'HIGH_RISK_ONLY' | 'MODERATE_RISK_ONLY' | 'FINANCIAL_ONLY';
 
 interface DiffUiState {
   activeFilter: DiffFilter;

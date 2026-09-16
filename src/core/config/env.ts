@@ -8,6 +8,13 @@ export const ENV = {
   APP_THEME: 'AI for Legal Assistance & Access',
   VERSION: '1.0.0',
   GEMINI_API_KEY: import.meta.env.VITE_GEMINI_API_KEY || '',
-  GEMINI_MODEL: 'gemini-2.5-flash',
+  GEMINI_MODEL: import.meta.env.VITE_GEMINI_MODEL || 'gemini-3.6-flash',
+  NVIDIA_NIM_API_KEY: import.meta.env.VITE_NVIDIA_NIM_API_KEY || '',
+  NVIDIA_NIM_MODEL:
+    import.meta.env.VITE_NVIDIA_NIM_MODEL || 'meta/llama-3.2-11b-vision-instruct',
+  NVIDIA_NIM_ENDPOINT:
+    typeof window !== 'undefined' && window.location.origin.includes('localhost') || typeof window !== 'undefined' && window.location.origin.includes('127.0.0.1')
+      ? '/api/nvidia/v1/chat/completions'
+      : 'https://integrate.api.nvidia.com/v1/chat/completions',
   ENABLE_LOCAL_MOCK_FALLBACK: true, // Guarantees seamless demo operation even if user has no API key entered
 } as const;

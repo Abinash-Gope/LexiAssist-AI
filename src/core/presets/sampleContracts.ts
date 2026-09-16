@@ -246,6 +246,69 @@ export const LEASE_COMPARISON_DIFF: ContractDiffComparison = {
   ],
 };
 
+export const FREELANCE_MSA_COMPARISON_DIFF: ContractDiffComparison = {
+  baselineDocumentTitle: 'Original Master Services Agreement (v1.0)',
+  baselineVersion: 'v1.0 (Balanced Mutual Terms)',
+  alteredDocumentTitle: 'Client Revised Enterprise Draft (v2.0)',
+  alteredVersion: 'v2.0 (Client Aggressive Redlines)',
+  materialAlterationsCount: 4,
+  newLiabilitiesCount: 3,
+  omittedProtectionsCount: 1,
+  baselineScore: 92,
+  alteredScore: 42,
+  riskScoreDelta: 50,
+  activeFlagsCount: 4,
+  clauses: [
+    {
+      id: 'diff-msa-1',
+      sectionNumber: 'Section 3.2',
+      title: 'Payment Terms & Net-90 Disbursements',
+      baselineText: 'Invoices submitted by Consultant shall be reviewed and approved within ten (10) business days, with undisputed sums payable on standard Net-30 terms following invoice receipt.',
+      alteredText: 'Invoices shall be reviewed within 45 days. Approved disbursements shall be paid on Net-90 terms following formal acceptance of deliverables. Client reserves right to hold 20% retainage indefinitely.',
+      changeType: 'MODIFIED',
+      severity: 'MEDIUM',
+      semanticAnalysis: 'Extends invoice payment to Net-90 with 45-day review buffer, creating cash flow delays up to 135 days.',
+      suggestedAction: 'COUNTER',
+    },
+    {
+      id: 'diff-msa-2',
+      sectionNumber: 'Section 7.1',
+      title: 'Work-for-Hire & Universal IP Assignment',
+      baselineText: 'Client owns final delivered client-specific work product upon payment in full. Consultant retains all rights in pre-existing background code, algorithms, tooling, and general industry know-how.',
+      alteredText: 'Consultant irrevocably transfers and assigns all intellectual property, including prior inventions, background toolkits, algorithms, and general know-how developed before or during this agreement, throughout the universe in perpetuity.',
+      changeType: 'MODIFIED',
+      severity: 'HIGH',
+      semanticAnalysis: 'Total expropriation of contractor prior tools, open-source utilities, and algorithmic frameworks. Strips contractor of their business toolkit.',
+      statutoryWarning: 'Unconscionable overbroad assignment of pre-existing background property.',
+      suggestedAction: 'REVERT',
+    },
+    {
+      id: 'diff-msa-3',
+      sectionNumber: 'Section 9.4',
+      title: 'Indemnity & Unlimited Consequential Liability',
+      baselineText: 'Mutual Liability Cap: Each party liability to the other for direct damages is capped at fees paid in prior 12 months. Neither party shall be liable for consequential or lost-profit damages.',
+      alteredText: 'Consultant shall indemnify, defend, and hold Client harmless from any and all damages, claims, third-party actions, lost business profits, and incidental or consequential losses without monetary limitation.',
+      changeType: 'MODIFIED',
+      severity: 'HIGH',
+      semanticAnalysis: 'Completely removes the mutual liability ceiling and exposes individual contractor to uncapped lost-profit claims for client enterprise systems.',
+      statutoryWarning: 'Severe commercial asymmetry — uncapped indirect liability creates existential financial exposure.',
+      suggestedAction: 'REVERT',
+    },
+    {
+      id: 'diff-msa-4',
+      sectionNumber: 'Section 11.2',
+      title: '18-Month Global Non-Compete Restraint',
+      baselineText: 'Standard Non-Solicitation: During agreement and for six (6) months post-termination, neither party shall solicit the other party employees or direct active clients.',
+      alteredText: 'For eighteen (18) months following termination, Consultant shall not render consulting, engineering, or advisory services, directly or indirectly, to any entity competing in Client market worldwide.',
+      changeType: 'MODIFIED',
+      severity: 'HIGH',
+      semanticAnalysis: 'Locks consultant out of their entire industry for 1.5 years worldwide under threat of injunction and litigation.',
+      statutoryWarning: 'Overly broad geographic scope; void under California B&P § 16600 and restricted under FTC rule.',
+      suggestedAction: 'REVERT',
+    },
+  ],
+};
+
 export const SAMPLE_PREP_KIT_DATA: PrepKitData = {
   documentTitle: 'Residential Tenancy & Lease Agreement (2026)',
   parties: {
@@ -321,3 +384,108 @@ export const SAMPLE_PREP_KIT_DATA: PrepKitData = {
     },
   ],
 };
+
+export const FREELANCE_MSA_PREP_KIT_DATA: PrepKitData = {
+  documentTitle: 'Master Services Agreement & IP Assignment',
+  parties: {
+    firstParty: 'Apex Media Enterprise Inc. (Client)',
+    secondParty: 'Independent Contractor (Consultant)',
+  },
+  jurisdiction: 'State of Delaware',
+  effectiveDate: 'November 1, 2026',
+  overallScore: 44,
+  executiveSummary: 'This Master Services Agreement is heavily biased toward the enterprise client. It imposes extreme cash-flow delays via Net-90 payment terms, attempts to seize all pre-existing consultant IP and know-how, demands uncapped liability for indirect lost profits, and restricts the contractor with an 18-month worldwide non-compete covenant.',
+  keyRisks: [
+    {
+      section: 'Section 9.4',
+      level: 'HIGH',
+      summary: 'Uncapped Liability & Consequential Lost Profits',
+      identifiedRisk: 'Exposes consultant to catastrophic business liability exceeding contract value.',
+    },
+    {
+      section: 'Section 7.1',
+      level: 'HIGH',
+      summary: 'Perpetual Universal Pre-Existing IP Expropriation',
+      identifiedRisk: 'Surrenders background tools, personal software frameworks, and career know-how.',
+    },
+    {
+      section: 'Section 11.2',
+      level: 'HIGH',
+      summary: '18-Month Global Non-Compete Restraint',
+      identifiedRisk: 'Severe restraint of trade barring independent contracting globally.',
+    },
+    {
+      section: 'Section 3.2',
+      level: 'MEDIUM',
+      summary: 'Net-90 Payment Delay with 45-Day Verification',
+      identifiedRisk: 'Forces contractor to finance enterprise operations for 4.5 months before payment.',
+    },
+  ],
+  topConsultationQuestions: [
+    {
+      questionNumber: 1,
+      question: 'How do we effectively limit contractor cumulative liability to the fees paid under this SOW in Section 9.4?',
+      rationale: 'Consultants must never sign uncapped liability for enterprise lost profits without a financial ceiling.',
+      suggestedObjective: 'Cap liability at total fees paid in preceding 6 months and mutually exclude consequential damages.',
+    },
+    {
+      questionNumber: 2,
+      question: 'How should Section 7.1 be carved out to preserve ownership of my background toolkits, libraries, and open-source assets?',
+      rationale: 'Work-for-hire clauses should assign only newly created custom deliverables upon receipt of full payment.',
+      suggestedObjective: 'Insert standard Background IP reservation and grant Client a non-exclusive license.',
+    },
+    {
+      questionNumber: 3,
+      question: 'Is the 18-month worldwide non-compete covenant in Section 11.2 legally enforceable against an independent contractor?',
+      rationale: 'Many jurisdictions severely limit post-termination non-competes against independent contractors.',
+      suggestedObjective: 'Strike the non-compete entirely and replace with reasonable non-solicitation of active clients.',
+    },
+    {
+      questionNumber: 4,
+      question: 'What statutory remedies or prompt payment provisions can we cite to reduce Net-90 to Net-30 in Section 3.2?',
+      rationale: 'Net-90 with 45-day review delays compensation by over 135 calendar days.',
+      suggestedObjective: 'Mandate Net-30 payment with statutory late payment interest of 1.5% per month.',
+    },
+  ],
+  recommendedCounterClauses: [
+    {
+      section: 'Section 9.4',
+      currentTerm: 'Consultant indemnifies Client for any losses including consequential damages without liability cap.',
+      proposedTerm: "Mutual Liability Cap: Each party's aggregate liability shall not exceed total fees received by Consultant during the preceding six (6) months. Neither party shall be liable for indirect or lost profit damages.",
+    },
+    {
+      section: 'Section 7.1',
+      currentTerm: 'Consultant transfers all pre-existing toolkits, algorithms, and know-how in perpetuity.',
+      proposedTerm: 'Consultant retains all right and title to pre-existing background materials and tools. Client receives a non-exclusive, perpetual license solely as incorporated into final deliverables.',
+    },
+  ],
+};
+
+export const SAMPLE_TEST_CONTRACT_RAW = `COMMERCIAL SAAS SERVICES AGREEMENT & ENTERPRISE TERMS
+Effective Date: September 15, 2026
+Jurisdiction: State of Delaware / Unilateral Counterparty Forum
+Parties: NovaCloud Technologies Inc. ("Client") and Apex Dynamics Solutions LLC ("Provider")
+
+Section 1.1: Scope of Engagement & Deliverables
+Provider agrees to design, configure, and maintain enterprise distributed cloud orchestration software infrastructure in accordance with the specifications detailed in Statement of Work #4.
+
+Section 2.4: Fees, Invoicing & 90-Day Administrative Holdback
+Invoices submitted by Provider shall undergo an initial sixty (60) day verification and accounting review by Client. Upon approval, payment terms shall be Net-90 calendar days. Client reserves the unilateral, discretionary right to hold back twenty-five percent (25%) of all gross billable sums without interest as a reserve against future warranty contingencies.
+
+Section 3.2: Perpetual Non-Compete & Worldwide Field Restriction
+Provider covenants and agrees that during the term of this Agreement and for a period of thirty-six (36) months following any termination or expiration hereof, Provider shall not, directly or indirectly, anywhere worldwide, engage in, perform services for, consult with, invest in, or otherwise assist any enterprise, product, or service that competes in any capacity with Client’s current or contemplated lines of cloud business.
+
+Section 5.1: Automatic Renewal & 120-Day Notice Window
+This Agreement shall automatically renew for successive two (2) year terms unless Provider provides written notice of non-renewal via certified mail during a narrow five (5) day window exactly one hundred twenty (120) days prior to the expiration of the then-current term. Failure to deliver notice within this exact 5-day window shall irrevocably bind Provider to the subsequent 2-year renewal term.
+
+Section 8.2: Total Assignment of All Background IP & Inventions
+Provider hereby unconditionally and irrevocably assigns, transfers, and conveys to Client, globally in perpetuity, all worldwide right, title, and interest in and to all deliverables, algorithms, software architectures, know-how, and Provider's pre-existing open-source or proprietary tools, libraries, scripts, and utilities utilized in connection with this engagement.
+
+Section 9.4: Unilateral Discretionary Termination by Client
+Client reserves the right to terminate this Agreement or any Statement of Work at any time, with or without cause, immediately upon written notice to Provider, without incurring any early termination liability, kill fee, or obligation to pay unaccrued milestone balances. Provider shall have no reciprocal right to terminate without cause.
+
+Section 11.2: Uncapped Provider Indemnification & Consequential Damages
+Provider shall defend, indemnify, and hold harmless Client, its parent companies, affiliates, and enterprise customers from and against any and all claims, liabilities, commercial losses, regulatory fines, lost profits, business interruptions, and attorney's fees arising out of or related to this Agreement. Provider’s indemnity obligations shall be completely uncapped and shall not be subject to any financial ceiling or limitation of liability.
+
+Section 14.3: Exclusive Unilateral Mandatory Arbitration & Fee Shifting
+Any controversy or dispute arising under or relating to this Agreement shall be resolved exclusively through private binding arbitration held in Zurich, Switzerland, conducted under Swiss arbitration rules in the English language. In the event of any proceeding, Provider shall bear all filing fees, arbitrator stipends, and Client’s reasonable legal expenses regardless of the final outcome.`;

@@ -14,8 +14,10 @@ import {
   Loader2,
   FolderOpen,
   ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { Button } from '../../ui/Button';
+import { SAMPLE_TEST_CONTRACT_RAW } from '@/core/presets/sampleContracts';
 
 interface ContractUploadModalProps {
   isOpen: boolean;
@@ -64,16 +66,17 @@ export const ContractUploadModal: React.FC<ContractUploadModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const runScanAnimation = async (onComplete: () => void) => {
+    // 1. Dispatch upload immediately so background parsing and state updates begin at once
+    onComplete();
     const stages: ScanStage[] = ['extracting', 'parsing', 'scoring', 'done'];
     for (const stage of stages) {
       setScanStage(stage);
-      await new Promise((r) => setTimeout(r, stage === 'done' ? 600 : 900));
+      await new Promise((r) => setTimeout(r, stage === 'done' ? 300 : 250));
     }
-    onComplete();
     setTimeout(() => {
       setScanStage('idle');
       onClose();
-    }, 800);
+    }, 400);
   };
 
   const handleFileAccepted = useCallback(
@@ -81,8 +84,14 @@ export const ContractUploadModal: React.FC<ContractUploadModalProps> = ({
       setUploadedFileName(file.name);
       runScanAnimation(() => onUploadFile(file));
     },
-    [onUploadFile, onClose]
+    [onUploadFile]
   );
+
+  const handleLoadSampleTestContract = () => {
+    const blob = new Blob([SAMPLE_TEST_CONTRACT_RAW], { type: 'text/plain' });
+    const file = new File([blob], 'Delaware_SaaS_Enterprise_Agreement.txt', { type: 'text/plain' });
+    handleFileAccepted(file);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -190,6 +199,27 @@ export const ContractUploadModal: React.FC<ContractUploadModalProps> = ({
                     <p className="text-[10px] text-slate-400">High-Risk Indemnity</p>
                   </div>
                 </button>
+                <button
+                  onClick={handleLoadSampleTestContract}
+                  className="col-span-2 flex items-center justify-between p-3 rounded-lg border border-purple-200 bg-purple-50/60 hover:border-purple-400 hover:bg-purple-100/70 transition-all text-left group"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-purple-950 group-hover:text-purple-700">
+                        Delaware SaaS Enterprise Terms (8 Flags)
+                      </p>
+                      <p className="text-[10px] text-purple-600">
+                        Uncapped Liability, Perpetual Non-Compete & Net-90
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">
+                    1-Click Test
+                  </span>
+                </button>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -220,6 +250,17 @@ export const ContractUploadModal: React.FC<ContractUploadModalProps> = ({
               </div>
             ) : (
               <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-slate-500 font-medium">Paste Contract Clauses or Agreement</span>
+                  <button
+                    type="button"
+                    onClick={() => setPasteText(SAMPLE_TEST_CONTRACT_RAW)}
+                    className="text-[11px] font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1 transition-colors"
+                  >
+                    <Sparkles className="w-3 h-3 text-purple-600" />
+                    Insert Sample High-Risk Contract
+                  </button>
+                </div>
                 <textarea value={pasteText} onChange={(e) => setPasteText(e.target.value)} placeholder="Paste the full contract text here..." rows={8} className="w-full px-3.5 py-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand resize-none font-mono leading-relaxed" />
                 <Button variant="primary" size="sm" disabled={!pasteText.trim()} onClick={handlePasteSubmit} className="w-full text-xs font-semibold">
                   <Sparkles className="w-3.5 h-3.5 mr-1.5" />

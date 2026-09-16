@@ -48,3 +48,5 @@ temp/
 
 # Agent Configuration & Skills
 .agent/
+
+Config/

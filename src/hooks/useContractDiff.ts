@@ -13,25 +13,48 @@ import {
 import { useDiffQuery } from '@/state/queries/useDiffQuery';
 import { RedlineClause } from '@/core/types/diff.types';
 
-export function useContractDiff() {
+export function useContractDiff(
+  presetId = 'lease',
+  customV1Text?: string,
+  customV2Text?: string,
+  customV1Title?: string,
+  customV2Title?: string
+) {
   const dispatch = useAppDispatch();
   const { activeFilter, isSyncScrollLocked, selectedDiffClauseId } = useAppSelector(
     (state) => state.diffUi
   );
 
-  const { data: diffData, isLoading, error } = useDiffQuery();
+  const { data: diffData, isLoading, error } = useDiffQuery(
+    presetId,
+    customV1Text,
+    customV2Text,
+    customV1Title,
+    customV2Title
+  );
+
+  const allClauses = diffData?.clauses || [];
 
   // Filter clauses according to active filter
-  const filteredClauses = (diffData?.clauses || []).filter((clause: RedlineClause) => {
+  const filteredClauses = allClauses.filter((clause: RedlineClause) => {
     if (activeFilter === 'HIGH_RISK_ONLY') {
       return clause.severity === 'HIGH';
     }
+    if (activeFilter === 'MODERATE_RISK_ONLY') {
+      return clause.severity === 'MEDIUM';
+    }
     if (activeFilter === 'FINANCIAL_ONLY') {
+      const lower = (clause.title + ' ' + clause.baselineText + ' ' + clause.alteredText).toLowerCase();
       return (
-        clause.title.toLowerCase().includes('deposit') ||
-        clause.title.toLowerCase().includes('escalat') ||
-        clause.title.toLowerCase().includes('fee') ||
-        clause.title.toLowerCase().includes('rent')
+        lower.includes('deposit') ||
+        lower.includes('escalat') ||
+        lower.includes('fee') ||
+        lower.includes('rent') ||
+        lower.includes('payment') ||
+        lower.includes('disbursement') ||
+        lower.includes('invoic') ||
+        lower.includes('price') ||
+        lower.includes('$')
       );
     }
     return true;
@@ -59,6 +82,7 @@ export function useContractDiff() {
     isSyncScrollLocked,
     selectedClause,
     selectedDiffClauseId,
+    allClauses,
     filteredClauses,
     setFilter: handleFilterChange,
     toggleSync: handleToggleSyncScroll,

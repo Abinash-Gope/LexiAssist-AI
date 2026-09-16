@@ -3,6 +3,8 @@ import { AlertCircle, AlertTriangle, ShieldAlert, Lock, Unlock, Filter } from 'l
 import { Card } from '../../ui/Card';
 import { DiffFilter } from '@/state/slices/diffUiSlice';
 
+import { RedlineClause } from '@/core/types/diff.types';
+
 interface MetricDeltaStripProps {
   materialAlterationsCount: number;
   newLiabilitiesCount: number;
@@ -12,6 +14,7 @@ interface MetricDeltaStripProps {
   onFilterChange: (filter: DiffFilter) => void;
   isSyncScrollLocked: boolean;
   onToggleSyncScroll: () => void;
+  clauses?: RedlineClause[];
 }
 
 export const MetricDeltaStrip: React.FC<MetricDeltaStripProps> = ({
@@ -23,6 +26,7 @@ export const MetricDeltaStrip: React.FC<MetricDeltaStripProps> = ({
   onFilterChange,
   isSyncScrollLocked,
   onToggleSyncScroll,
+  clauses,
 }) => {
   return (
     <div className="space-y-3">
@@ -77,24 +81,53 @@ export const MetricDeltaStrip: React.FC<MetricDeltaStripProps> = ({
 
       {/* Filter and Synchronized Scroll Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-surface-light border border-border-light rounded-xl">
-        <div className="flex items-center gap-1 text-xs text-slate-600">
-          <Filter className="w-3.5 h-3.5 mr-1" />
-          <span className="font-semibold mr-2">Filter Diffs:</span>
-          {(['ALL', 'HIGH_RISK_ONLY', 'FINANCIAL_ONLY'] as const).map((filter) => (
-            <button
-              key={filter}
-              onClick={() => onFilterChange(filter)}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
-                activeFilter === filter
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-surface-dim'
-              }`}
-            >
-              {filter === 'ALL' && 'Show All (4)'}
-              {filter === 'HIGH_RISK_ONLY' && '🔴 High Risk Only (3)'}
-              {filter === 'FINANCIAL_ONLY' && '💰 Financial Only (2)'}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-600">
+          <div className="flex items-center gap-1 mr-1">
+            <Filter className="w-3.5 h-3.5 text-slate-500" />
+            <span className="font-semibold text-slate-700">Filter Diffs:</span>
+          </div>
+          {(() => {
+            const totalCount = clauses ? clauses.length : 4;
+            const highCount = clauses ? clauses.filter((c) => c.severity === 'HIGH').length : 3;
+            const moderateCount = clauses ? clauses.filter((c) => c.severity === 'MEDIUM').length : 1;
+            const financialCount = clauses
+              ? clauses.filter((c) => {
+                  const lower = (c.title + ' ' + c.baselineText + ' ' + c.alteredText).toLowerCase();
+                  return (
+                    lower.includes('deposit') ||
+                    lower.includes('escalat') ||
+                    lower.includes('fee') ||
+                    lower.includes('rent') ||
+                    lower.includes('payment') ||
+                    lower.includes('disbursement') ||
+                    lower.includes('invoic') ||
+                    lower.includes('price') ||
+                    lower.includes('$')
+                  );
+                }).length
+              : 2;
+
+            const filters = [
+              { id: 'ALL' as const, label: `Show All (${totalCount})` },
+              { id: 'HIGH_RISK_ONLY' as const, label: `🔴 High Risk (${highCount})` },
+              { id: 'MODERATE_RISK_ONLY' as const, label: `🟡 Moderate (${moderateCount})` },
+              { id: 'FINANCIAL_ONLY' as const, label: `💰 Financial (${financialCount})` },
+            ];
+
+            return filters.map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => onFilterChange(id)}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  activeFilter === id
+                    ? 'bg-primary text-white shadow-sm font-semibold'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
+                }`}
+              >
+                {label}
+              </button>
+            ));
+          })()}
         </div>
 
         <button

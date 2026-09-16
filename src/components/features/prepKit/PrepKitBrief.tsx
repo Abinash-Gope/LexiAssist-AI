@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Download, FileText, CheckCircle2, AlertCircle, AlertTriangle, Scale, ShieldCheck, PenLine, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { useLawyerPrepKit } from '@/hooks/useLawyerPrepKit';
 import { ContractDocument } from '@/core/types/contract.types';
@@ -32,11 +33,55 @@ export const PrepKitBrief: React.FC<PrepKitBriefProps> = ({ document }) => {
     setCustomNotes((prev) => prev.filter((_, i) => i !== index));
   };
 
-  if (isLoading || !prepKit) {
+  if (!document) {
+    return (
+      <div className="max-w-2xl mx-auto p-12 text-center bg-surface-light rounded-2xl border border-border-light shadow-level-1 space-y-4">
+        <div className="w-12 h-12 rounded-xl bg-brand/10 text-brand flex items-center justify-center mx-auto">
+          <FileText className="w-6 h-6" />
+        </div>
+        <div>
+          <h3 className="text-base font-bold text-slate-900 font-headline">No Contract Loaded</h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Please select a contract from the workstation or upload an agreement to generate your lawyer prep kit.
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link to="/dashboard">
+            <Button size="sm" variant="primary" className="text-xs font-semibold">
+              Open Contract Workstation
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading && !prepKit) {
     return (
       <div className="flex items-center justify-center p-16 text-slate-400">
         <FileText className="w-6 h-6 animate-pulse mr-2" />
         <span>Synthesizing attorney consultation brief...</span>
+      </div>
+    );
+  }
+
+  if (!prepKit) {
+    return (
+      <div className="max-w-2xl mx-auto p-12 text-center bg-surface-light rounded-2xl border border-border-light shadow-level-1 space-y-4">
+        <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
+        <div>
+          <h3 className="text-base font-bold text-slate-900 font-headline">Prep Kit Unavailable</h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Could not generate consultation questions for this document format.
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link to="/dashboard">
+            <Button size="sm" variant="outline" className="text-xs font-semibold">
+              Return to Workspace
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }

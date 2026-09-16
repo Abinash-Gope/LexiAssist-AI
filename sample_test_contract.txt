@@ -1,0 +1,28 @@
+COMMERCIAL SAAS SERVICES AGREEMENT & ENTERPRISE TERMS
+Effective Date: September 15, 2026
+Jurisdiction: State of Delaware / Unilateral Counterparty Forum
+Parties: NovaCloud Technologies Inc. ("Client") and Apex Dynamics Solutions LLC ("Provider")
+
+Section 1.1: Scope of Engagement & Deliverables
+Provider agrees to design, configure, and maintain enterprise distributed cloud orchestration software infrastructure in accordance with the specifications detailed in Statement of Work #4.
+
+Section 2.4: Fees, Invoicing & 90-Day Administrative Holdback
+Invoices submitted by Provider shall undergo an initial sixty (60) day verification and accounting review by Client. Upon approval, payment terms shall be Net-90 calendar days. Client reserves the unilateral, discretionary right to hold back twenty-five percent (25%) of all gross billable sums without interest as a reserve against future warranty contingencies.
+
+Section 3.2: Perpetual Non-Compete & Worldwide Field Restriction
+Provider covenants and agrees that during the term of this Agreement and for a period of thirty-six (36) months following any termination or expiration hereof, Provider shall not, directly or indirectly, anywhere worldwide, engage in, perform services for, consult with, invest in, or otherwise assist any enterprise, product, or service that competes in any capacity with Client’s current or contemplated lines of cloud business.
+
+Section 5.1: Automatic Renewal & 120-Day Notice Window
+This Agreement shall automatically renew for successive two (2) year terms unless Provider provides written notice of non-renewal via certified mail during a narrow five (5) day window exactly one hundred twenty (120) days prior to the expiration of the then-current term. Failure to deliver notice within this exact 5-day window shall irrevocably bind Provider to the subsequent 2-year renewal term.
+
+Section 8.2: Total Assignment of All Background IP & Inventions
+Provider hereby unconditionally and irrevocably assigns, transfers, and conveys to Client, globally in perpetuity, all worldwide right, title, and interest in and to all deliverables, algorithms, software architectures, know-how, and Provider's pre-existing open-source or proprietary tools, libraries, scripts, and utilities utilized in connection with this engagement.
+
+Section 9.4: Unilateral Discretionary Termination by Client
+Client reserves the right to terminate this Agreement or any Statement of Work at any time, with or without cause, immediately upon written notice to Provider, without incurring any early termination liability, kill fee, or obligation to pay unaccrued milestone balances. Provider shall have no reciprocal right to terminate without cause.
+
+Section 11.2: Uncapped Provider Indemnification & Consequential Damages
+Provider shall defend, indemnify, and hold harmless Client, its parent companies, affiliates, and enterprise customers from and against any and all claims, liabilities, commercial losses, regulatory fines, lost profits, business interruptions, and attorney's fees arising out of or related to this Agreement. Provider’s indemnity obligations shall be completely uncapped and shall not be subject to any financial ceiling or limitation of liability.
+
+Section 14.3: Exclusive Unilateral Mandatory Arbitration & Fee Shifting
+Any controversy or dispute arising under or relating to this Agreement shall be resolved exclusively through private binding arbitration held in Zurich, Switzerland, conducted under Swiss arbitration rules in the English language. In the event of any proceeding, Provider shall bear all filing fees, arbitrator stipends, and Client’s reasonable legal expenses regardless of the final outcome.

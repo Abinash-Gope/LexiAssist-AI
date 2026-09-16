@@ -23,9 +23,15 @@ export function useDocumentAnalysis() {
     searchFilter,
     activeRiskFilter,
     documentZoom,
+    customContractText,
+    customContractTitle,
   } = useAppSelector((state) => state.contractUi);
 
-  const { data: document, isLoading, error, refetch } = useAnalyzeQuery(activePreset);
+  const { data: document, isLoading, error, refetch } = useAnalyzeQuery(
+    activePreset,
+    activePreset === 'CUSTOM' ? customContractText : '',
+    activePreset === 'CUSTOM' ? customContractTitle : ''
+  );
 
   // Compute selected clause object
   const selectedClause: ContractClause | undefined =

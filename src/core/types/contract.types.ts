@@ -14,6 +14,7 @@ export interface ContractClause {
   severity: RiskSeverity;
   identifiedRisk?: string;
   statutoryReference?: string;
+  statutoryWarning?: string;
   counterProposal?: string;
   pageNumber?: number;
   highlightCoordinates?: {

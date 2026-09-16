@@ -68,9 +68,12 @@ The codebase strictly adheres to a robust **4-Layer Architecture** where data fl
 
 ## 🤖 GenAI Integration & Model Specifications
 
-* **Primary Model:** Google Gemini 2.5 Flash / 1.5 Flash (`gemini-2.5-flash`)
-* **Prompt Strategy:** Low-temperature (0.1) structured JSON extraction enforcing deterministic risk scoring.
-* **Full-Context Ingestion:** Uses Gemini's 1M+ token context window to evaluate whole contracts without lossy vector chunking.
+* **Primary Reasoning & Deep Analysis Model:** **NVIDIA NIM** (`meta/llama-3.2-90b-vision-instruct`)
+  * Hosts Meta's 89B parameter model via NVIDIA Inference Microservices (`https://integrate.api.nvidia.com/v1`).
+  * Powers clause extraction, statutory violation detection, interactive document Q&A copilot, and strategic Lawyer Prep Kit synthesis.
+* **Large-Document Ingestion Model:** **Google Gemini 2.5 Flash / 1.5 Flash** (`gemini-2.5-flash`)
+  * Full-context ingestion exploiting Gemini's 1M+ token window for 50+ page legal filings without vector chunk loss.
+* **Deterministic Fallback Engine:** Pure TypeScript deterministic legal parser ensuring 100% testable uptime during hackathon evaluations.
 * **Detailed Documentation:** See [`GENAI_ARCHITECTURE.md`](./GENAI_ARCHITECTURE.md) for full pipeline specs.
 
 ---

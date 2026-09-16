@@ -4,6 +4,7 @@ import { ContractDocument, ContractClause } from '@/core/types/contract.types';
 
 interface DocumentViewerProps {
   document: ContractDocument | undefined;
+  filteredClauses?: ContractClause[];
   selectedClauseId: string | null;
   onSelectClause: (clauseId: string) => void;
   searchFilter: string;
@@ -18,6 +19,7 @@ interface DocumentViewerProps {
 
 export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   document,
+  filteredClauses,
   selectedClauseId,
   onSelectClause,
   searchFilter,
@@ -59,12 +61,19 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     );
   }
 
+  const allCount = document.clauses.length;
+  const highCount = document.clauses.filter((c) => c.severity === 'HIGH').length;
+  const mediumCount = document.clauses.filter((c) => c.severity === 'MEDIUM').length;
+  const lowCount = document.clauses.filter((c) => c.severity === 'LOW').length;
+
+  const displayClauses = filteredClauses ?? document.clauses;
+
   return (
     <div className="flex flex-col h-full bg-surface-dim border border-border-light rounded-xl overflow-hidden shadow-level-1">
       {/* Document Viewer Toolbar */}
       <div className="flex flex-wrap items-center justify-between p-3 bg-surface-light border-b border-border-light gap-2">
         {/* Search Bar */}
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
           <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"
@@ -76,21 +85,23 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1">
-          {(['ALL', 'HIGH', 'MEDIUM', 'LOW'] as const).map((filter) => (
+        <div className="flex flex-wrap items-center gap-1">
+          {[
+            { id: 'ALL' as const, label: `All (${allCount})` },
+            { id: 'HIGH' as const, label: `🔴 High (${highCount})` },
+            { id: 'MEDIUM' as const, label: `🟡 Caution (${mediumCount})` },
+            { id: 'LOW' as const, label: `🟢 Safe (${lowCount})` },
+          ].map(({ id, label }) => (
             <button
-              key={filter}
-              onClick={() => onRiskFilterChange(filter)}
+              key={id}
+              onClick={() => onRiskFilterChange(id)}
               className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-all ${
-                activeRiskFilter === filter
-                  ? 'bg-primary text-white'
+                activeRiskFilter === id
+                  ? 'bg-primary text-white shadow-xs'
                   : 'text-slate-600 hover:bg-slate-200'
               }`}
             >
-              {filter === 'ALL' && 'All Clauses'}
-              {filter === 'HIGH' && '🔴 High'}
-              {filter === 'MEDIUM' && '🟡 Caution'}
-              {filter === 'LOW' && '🟢 Safe'}
+              {label}
             </button>
           ))}
         </div>
@@ -142,76 +153,95 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
 
           {/* Clause Stream */}
           <div className="space-y-6 font-legal leading-relaxed text-slate-800 text-[15px]">
-            {document.clauses.map((clause: ContractClause) => {
-              const isSelected = clause.id === selectedClauseId;
-
-              // Border and background highlighting based on risk level
-              let riskBorder = 'border-transparent';
-              let riskBg = '';
-              let badge = null;
-
-              if (clause.severity === 'HIGH') {
-                riskBorder = 'border-l-4 border-l-risk-high';
-                riskBg = isSelected ? 'bg-red-50/80' : 'hover:bg-red-50/40';
-                badge = (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-sans font-bold uppercase tracking-wider text-risk-high bg-risk-high-bg px-2 py-0.5 rounded border border-risk-high-border">
-                    <AlertCircle className="w-3 h-3" /> High Risk Detected
-                  </span>
-                );
-              } else if (clause.severity === 'MEDIUM') {
-                riskBorder = 'border-l-4 border-l-risk-medium';
-                riskBg = isSelected ? 'bg-amber-50/80' : 'hover:bg-amber-50/40';
-                badge = (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-sans font-bold uppercase tracking-wider text-risk-medium bg-risk-medium-bg px-2 py-0.5 rounded border border-risk-medium-border">
-                    <AlertTriangle className="w-3 h-3" /> Caution Flagged
-                  </span>
-                );
-              } else {
-                riskBorder = isSelected ? 'border-l-4 border-l-brand' : 'border-l-4 border-l-transparent';
-                riskBg = isSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50';
-                badge = (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-sans font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    <CheckCircle2 className="w-3 h-3" /> Standard Term
-                  </span>
-                );
-              }
-
-              const isPulsing = clause.id === pulsingId;
-
-              return (
-                <div
-                  key={clause.id}
-                  ref={(el) => (clauseRefs.current[clause.id] = el)}
-                  onClick={() => onSelectClause(clause.id)}
-                  className={`p-4 rounded-r-lg transition-all cursor-pointer ${riskBorder} ${riskBg} ${
-                    isSelected ? 'ring-1 ring-slate-400/50 shadow-sm' : ''
-                  } ${isPulsing ? 'citation-pulse-glow' : ''}`}
-                  style={
-                    isPulsing
-                      ? {
-                          animation: 'citationPulse 2.2s ease-out',
-                        }
-                      : undefined
-                  }
+            {displayClauses.length === 0 ? (
+              <div className="text-center py-12 px-4 border border-dashed border-slate-300 rounded-lg bg-slate-50/70">
+                <AlertCircle className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+                <p className="text-sm font-bold text-slate-700">No matching clauses found</p>
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                  No clauses match the current filter or search criteria. Try switching your risk badge filter or clearing your search term.
+                </p>
+                <button
+                  onClick={() => {
+                    onSearchChange('');
+                    onRiskFilterChange('ALL');
+                  }}
+                  className="mt-3 px-3 py-1.5 text-xs font-semibold text-brand bg-brand/10 hover:bg-brand/20 rounded-md transition-colors"
                 >
-                  {isPulsing && (
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-brand bg-brand/10 border border-brand/30 px-2 py-0.5 rounded mb-2 w-fit">
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand animate-ping inline-block" />
-                      Cited in Copilot Answer
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between gap-2 mb-2 font-sans">
-                    <span className="text-xs font-bold text-primary font-mono tracking-wide">
-                      {clause.sectionNumber}: {clause.title}
+                  Reset Filters &amp; Show All Clauses
+                </button>
+              </div>
+            ) : (
+              displayClauses.map((clause: ContractClause) => {
+                const isSelected = clause.id === selectedClauseId;
+
+                // Border and background highlighting based on risk level
+                let riskBorder = 'border-transparent';
+                let riskBg = '';
+                let badge = null;
+
+                if (clause.severity === 'HIGH') {
+                  riskBorder = 'border-l-4 border-l-risk-high';
+                  riskBg = isSelected ? 'bg-red-50/80' : 'hover:bg-red-50/40';
+                  badge = (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-sans font-bold uppercase tracking-wider text-risk-high bg-risk-high-bg px-2 py-0.5 rounded border border-risk-high-border">
+                      <AlertCircle className="w-3 h-3" /> High Risk Detected
                     </span>
-                    {badge}
+                  );
+                } else if (clause.severity === 'MEDIUM') {
+                  riskBorder = 'border-l-4 border-l-risk-medium';
+                  riskBg = isSelected ? 'bg-amber-50/80' : 'hover:bg-amber-50/40';
+                  badge = (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-sans font-bold uppercase tracking-wider text-risk-medium bg-risk-medium-bg px-2 py-0.5 rounded border border-risk-medium-border">
+                      <AlertTriangle className="w-3 h-3" /> Caution Flagged
+                    </span>
+                  );
+                } else {
+                  riskBorder = isSelected ? 'border-l-4 border-l-brand' : 'border-l-4 border-l-transparent';
+                  riskBg = isSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50';
+                  badge = (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-sans font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      <CheckCircle2 className="w-3 h-3" /> Standard Term
+                    </span>
+                  );
+                }
+
+                const isPulsing = clause.id === pulsingId;
+
+                return (
+                  <div
+                    key={clause.id}
+                    ref={(el) => (clauseRefs.current[clause.id] = el)}
+                    onClick={() => onSelectClause(clause.id)}
+                    className={`p-4 rounded-r-lg transition-all cursor-pointer ${riskBorder} ${riskBg} ${
+                      isSelected ? 'ring-1 ring-slate-400/50 shadow-sm' : ''
+                    } ${isPulsing ? 'citation-pulse-glow' : ''}`}
+                    style={
+                      isPulsing
+                        ? {
+                            animation: 'citationPulse 2.2s ease-out',
+                          }
+                        : undefined
+                    }
+                  >
+                    {isPulsing && (
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-brand bg-brand/10 border border-brand/30 px-2 py-0.5 rounded mb-2 w-fit">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand animate-ping inline-block" />
+                        Cited in Copilot Answer
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between gap-2 mb-2 font-sans">
+                      <span className="text-xs font-bold text-primary font-mono tracking-wide">
+                        {clause.sectionNumber}: {clause.title}
+                      </span>
+                      {badge}
+                    </div>
+                    <p className="text-slate-800 selection:bg-amber-200">
+                      {clause.originalText}
+                    </p>
                   </div>
-                  <p className="text-slate-800 selection:bg-amber-200">
-                    {clause.originalText}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
 
           {/* Paper Footer */}

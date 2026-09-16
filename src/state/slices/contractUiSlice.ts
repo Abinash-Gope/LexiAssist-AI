@@ -15,15 +15,53 @@ interface ContractUiState {
   activeRiskFilter: 'ALL' | 'HIGH' | 'MEDIUM' | 'LOW';
   documentZoom: number; // 100% = 1.0
   activeViewMode: 'ANNOTATED' | 'CLEAN' | 'REDLINE';
+  customContractText: string;
+  customContractTitle: string;
 }
 
+// Retrieve persisted contract from localStorage if available
+const getSavedCustomText = (): string => {
+  try {
+    return typeof window !== 'undefined' ? localStorage.getItem('lexiassist_custom_text') || '' : '';
+  } catch {
+    return '';
+  }
+};
+
+const getSavedCustomTitle = (): string => {
+  try {
+    return typeof window !== 'undefined' ? localStorage.getItem('lexiassist_custom_title') || '' : '';
+  } catch {
+    return '';
+  }
+};
+
+const getSavedPreset = (): PresetType => {
+  try {
+    if (typeof window === 'undefined') return 'LEASE';
+    const saved = localStorage.getItem('lexiassist_active_preset') as PresetType;
+    if (saved === 'CUSTOM' && !localStorage.getItem('lexiassist_custom_text')) {
+      return 'LEASE';
+    }
+    return saved || 'LEASE';
+  } catch {
+    return 'LEASE';
+  }
+};
+
+const savedText = getSavedCustomText();
+const savedTitle = getSavedCustomTitle();
+const initialPreset = getSavedPreset();
+
 const initialState: ContractUiState = {
-  activePreset: 'LEASE',
-  selectedClauseId: 'lease-c5', // Default focus on the automatic renewal clause
+  activePreset: initialPreset,
+  selectedClauseId: initialPreset === 'MSA' ? 'msa-c3' : initialPreset === 'LEASE' ? 'lease-c5' : null,
   searchFilter: '',
   activeRiskFilter: 'ALL',
   documentZoom: 1.0,
   activeViewMode: 'ANNOTATED',
+  customContractText: savedText,
+  customContractTitle: savedTitle,
 };
 
 export const contractUiSlice = createSlice({
@@ -32,7 +70,44 @@ export const contractUiSlice = createSlice({
   reducers: {
     setActivePreset: (state, action: PayloadAction<PresetType>) => {
       state.activePreset = action.payload;
-      state.selectedClauseId = action.payload === 'LEASE' ? 'lease-c5' : 'msa-c3';
+      state.selectedClauseId = action.payload === 'LEASE' ? 'lease-c5' : action.payload === 'MSA' ? 'msa-c3' : null;
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('lexiassist_active_preset', action.payload);
+        }
+      } catch (e) {
+        console.warn('Could not save preset to localStorage', e);
+      }
+    },
+    setCustomContract: (state, action: PayloadAction<{ text: string; title: string }>) => {
+      state.customContractText = action.payload.text;
+      state.customContractTitle = action.payload.title;
+      state.activePreset = 'CUSTOM';
+      state.selectedClauseId = null;
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('lexiassist_custom_text', action.payload.text);
+          localStorage.setItem('lexiassist_custom_title', action.payload.title);
+          localStorage.setItem('lexiassist_active_preset', 'CUSTOM');
+        }
+      } catch (e) {
+        console.warn('Could not save custom contract to localStorage', e);
+      }
+    },
+    clearCustomContract: (state) => {
+      state.customContractText = '';
+      state.customContractTitle = '';
+      state.activePreset = 'LEASE';
+      state.selectedClauseId = 'lease-c5';
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('lexiassist_custom_text');
+          localStorage.removeItem('lexiassist_custom_title');
+          localStorage.setItem('lexiassist_active_preset', 'LEASE');
+        }
+      } catch (e) {
+        console.warn('Could not clear custom contract in localStorage', e);
+      }
     },
     setSelectedClauseId: (state, action: PayloadAction<string | null>) => {
       state.selectedClauseId = action.payload;
@@ -54,6 +129,8 @@ export const contractUiSlice = createSlice({
 
 export const {
   setActivePreset,
+  setCustomContract,
+  clearCustomContract,
   setSelectedClauseId,
   setSearchFilter,
   setActiveRiskFilter,
