@@ -9,7 +9,7 @@ interface RiskGaugeMeterProps {
   lowRiskCount: number;
 }
 
-export const RiskGaugeMeter: React.FC<RiskGaugeMeterProps> = ({
+const RiskGaugeMeterComponent: React.FC<RiskGaugeMeterProps> = ({
   score,
   highRiskCount,
   mediumRiskCount,
@@ -100,3 +100,6 @@ export const RiskGaugeMeter: React.FC<RiskGaugeMeterProps> = ({
     </Card>
   );
 };
+
+export const RiskGaugeMeter = React.memo(RiskGaugeMeterComponent);
+

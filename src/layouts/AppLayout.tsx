@@ -51,6 +51,9 @@ export const AppLayout: React.FC = () => {
         const key = localStorage.key(i);
         if (
           key &&
+          key !== 'lexiassist_auth_session' &&
+          key !== 'lexiassist_registered_users' &&
+          key !== 'lexiassist_remembered_email' &&
           (key.startsWith('lexiassist') ||
             key.toLowerCase().includes('contract') ||
             key.toLowerCase().includes('query') ||

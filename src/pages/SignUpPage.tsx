@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Scale, ShieldCheck, Zap, Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -9,7 +9,7 @@ import { UserRole } from '@/core/types/auth.types';
 
 export const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signUp, loginAsGuest } = useAuth();
+  const { signUp, loginAsGuest, isAuthenticated } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -17,6 +17,13 @@ export const SignUpPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('TENANT');
   const [consentChecked, setConsentChecked] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // If already authenticated, redirect to workspace dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();

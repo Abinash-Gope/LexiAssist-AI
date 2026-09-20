@@ -10,7 +10,7 @@ interface ChatDrawerProps {
   onCitationPulse?: (clauseId: string | null) => void;
 }
 
-export const ChatDrawer: React.FC<ChatDrawerProps> = ({ document, onCitationPulse }) => {
+const ChatDrawerComponent: React.FC<ChatDrawerProps> = ({ document, onCitationPulse }) => {
   const {
     messages,
     inputQuery,
@@ -158,3 +158,6 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ document, onCitationPuls
     </div>
   );
 };
+
+export const ChatDrawer = React.memo(ChatDrawerComponent);
+

@@ -15,7 +15,7 @@ import contractUiReducer, {
   clearCustomContract,
 } from './slices/contractUiSlice';
 import diffUiReducer from './slices/diffUiSlice';
-import authReducer from './slices/authSlice';
+import authReducer, { loginSuccess, loginGuest, logout } from './slices/authSlice';
 
 // ---------------------------------------------------------------------------
 // Persistence Middleware
@@ -52,6 +52,42 @@ persistenceMiddleware.startListening({
       localStorage.removeItem('lexiassist_custom_text');
       localStorage.removeItem('lexiassist_custom_title');
       localStorage.setItem('lexiassist_active_preset', 'LEASE');
+    } catch { /* quota exceeded or private browsing — safe to ignore */ }
+  },
+});
+
+persistenceMiddleware.startListening({
+  actionCreator: loginSuccess,
+  effect: (action) => {
+    try {
+      localStorage.setItem(
+        'lexiassist_auth_session',
+        JSON.stringify({ isAuthenticated: true, user: action.payload })
+      );
+    } catch { /* quota exceeded or private browsing — safe to ignore */ }
+  },
+});
+
+persistenceMiddleware.startListening({
+  actionCreator: loginGuest,
+  effect: (_action, listenerApi) => {
+    try {
+      const state = listenerApi.getState() as RootState;
+      if (state.auth.user) {
+        localStorage.setItem(
+          'lexiassist_auth_session',
+          JSON.stringify({ isAuthenticated: true, user: state.auth.user })
+        );
+      }
+    } catch { /* quota exceeded or private browsing — safe to ignore */ }
+  },
+});
+
+persistenceMiddleware.startListening({
+  actionCreator: logout,
+  effect: () => {
+    try {
+      localStorage.removeItem('lexiassist_auth_session');
     } catch { /* quota exceeded or private browsing — safe to ignore */ }
   },
 });

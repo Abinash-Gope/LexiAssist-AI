@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { Sparkles, ArrowRight, GitCompare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { CompliancePill } from '@/components/ui/CompliancePill';
+import { useAuth } from '@/hooks/useAuth';
 
 export const HeroSection: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <section className="relative pt-6 sm:pt-10 pb-2 overflow-hidden text-center">
       {/* Subtle Ambient Radial Glow */}
@@ -33,9 +36,9 @@ export const HeroSection: React.FC = () => {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-          <Link to="/login">
+          <Link to={isAuthenticated ? "/dashboard" : "/login"}>
             <Button size="lg" variant="brand" className="font-semibold shadow-level-2 hover:shadow-level-3">
-              <span>Start Free Contract Review</span>
+              <span>{isAuthenticated ? "Open Document Workspace" : "Start Free Contract Review"}</span>
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </Link>

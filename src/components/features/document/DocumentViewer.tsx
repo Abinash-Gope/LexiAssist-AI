@@ -17,7 +17,7 @@ interface DocumentViewerProps {
   citationPulseId?: string | null;
 }
 
-export const DocumentViewer: React.FC<DocumentViewerProps> = ({
+export const DocumentViewerComponent: React.FC<DocumentViewerProps> = ({
   document,
   filteredClauses,
   selectedClauseId,
@@ -31,26 +31,68 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   citationPulseId,
 }) => {
   const clauseRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const userClickedRef = useRef<string | null>(null);
   const [pulsingId, setPulsingId] = useState<string | null>(null);
 
-  // Scroll to selected clause whenever it changes
+  // Scroll to selected clause only when triggered externally or out of view
   useEffect(() => {
-    if (selectedClauseId && clauseRefs.current[selectedClauseId]) {
-      clauseRefs.current[selectedClauseId]?.scrollIntoView({
+    if (!selectedClauseId) return;
+
+    // If the user clicked the clause directly with their mouse, it's already in view
+    if (userClickedRef.current === selectedClauseId) {
+      userClickedRef.current = null;
+      return;
+    }
+
+    const targetEl = clauseRefs.current[selectedClauseId];
+    const containerEl = scrollContainerRef.current;
+    if (!targetEl || !containerEl) return;
+
+    const targetRect = targetEl.getBoundingClientRect();
+    const containerRect = containerEl.getBoundingClientRect();
+    const isAlreadyVisible =
+      targetRect.top >= containerRect.top + 30 &&
+      targetRect.bottom <= containerRect.bottom - 30;
+
+    if (!isAlreadyVisible) {
+      targetEl.scrollIntoView({
         behavior: 'smooth',
-        block: 'center',
+        block: 'nearest',
       });
     }
   }, [selectedClauseId]);
 
-  // Fire pulse animation when a citation jump is triggered from chat
+  // Fire pulse animation and center when a citation jump is triggered from chat
   useEffect(() => {
-    if (citationPulseId) {
+    if (citationPulseId && clauseRefs.current[citationPulseId]) {
       setPulsingId(citationPulseId);
+      clauseRefs.current[citationPulseId]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
       const timer = setTimeout(() => setPulsingId(null), 2200);
       return () => clearTimeout(timer);
     }
   }, [citationPulseId]);
+
+  // Single-pass count memoized to avoid re-aggregating on every render
+  const { allCount, highCount, mediumCount, lowCount } = React.useMemo(() => {
+    if (!document) return { allCount: 0, highCount: 0, mediumCount: 0, lowCount: 0 };
+    const counts = document.clauses.reduce(
+      (acc, c) => {
+        acc[c.severity]++;
+        return acc;
+      },
+      { HIGH: 0, MEDIUM: 0, LOW: 0 } as Record<RiskSeverity, number>
+    );
+    return {
+      allCount: document.clauses.length,
+      highCount: counts.HIGH,
+      mediumCount: counts.MEDIUM,
+      lowCount: counts.LOW,
+    };
+  }, [document]);
 
   if (!document) {
     return (
@@ -60,13 +102,6 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
       </div>
     );
   }
-
-  const allCount = document.clauses.length;
-  // Single-pass count instead of three separate .filter() traversals
-  const { HIGH: highCount, MEDIUM: mediumCount, LOW: lowCount } = document.clauses.reduce(
-    (acc, c) => { acc[c.severity]++; return acc; },
-    { HIGH: 0, MEDIUM: 0, LOW: 0 } as Record<RiskSeverity, number>
-  );
 
   const displayClauses = filteredClauses ?? document.clauses;
 
@@ -137,7 +172,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
       </div>
 
       {/* Contract Paper Viewer Canvas */}
-      <div className="flex-1 p-6 overflow-y-auto bg-slate-100/60">
+      <div ref={scrollContainerRef} className="flex-1 p-6 overflow-y-auto bg-slate-100/60">
         <div
           style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
           className="max-w-3xl mx-auto bg-surface-light p-8 sm:p-12 rounded-lg shadow-level-2 border border-slate-200/80 transition-transform duration-100"
@@ -221,7 +256,10 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                     tabIndex={0}
                     aria-selected={isSelected}
                     aria-label={`${clause.sectionNumber}: ${clause.title} — ${clause.severity} risk level`}
-                    onClick={() => onSelectClause(clause.id)}
+                    onClick={() => {
+                      userClickedRef.current = clause.id;
+                      onSelectClause(clause.id);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -269,3 +307,6 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
     </div>
   );
 };
+
+export const DocumentViewer = React.memo(DocumentViewerComponent);
+

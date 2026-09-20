@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Scale, ShieldCheck, Zap, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -9,13 +9,31 @@ import { useAuth } from '@/hooks/useAuth';
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, loginAsGuest } = useAuth();
+  const { login, loginAsGuest, isAuthenticated } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberDevice, setRememberDevice] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const from = (location.state as any)?.from?.pathname || '/dashboard';
+
+  // If user is already authenticated, don't show login form - go directly to workspace
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, from, navigate]);
+
+  // Load remembered email if previously stored
+  useEffect(() => {
+    try {
+      const remembered = localStorage.getItem('lexiassist_remembered_email');
+      if (remembered) {
+        setEmail(remembered);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +43,16 @@ export const LoginPage: React.FC = () => {
       setError(result.error || 'Authentication failed. Please check your credentials.');
       return;
     }
+
+    // Persist remembered email for easy future logins
+    try {
+      if (rememberDevice) {
+        localStorage.setItem('lexiassist_remembered_email', email.trim().toLowerCase());
+      } else {
+        localStorage.removeItem('lexiassist_remembered_email');
+      }
+    } catch { /* ignore */ }
+
     navigate(from, { replace: true });
   };
 
@@ -173,7 +201,12 @@ export const LoginPage: React.FC = () => {
 
             <div className="flex items-center justify-between text-xs">
               <label className="flex items-center gap-1.5 text-slate-600 cursor-pointer">
-                <input type="checkbox" defaultChecked className="rounded border-slate-300" />
+                <input
+                  type="checkbox"
+                  checked={rememberDevice}
+                  onChange={(e) => setRememberDevice(e.target.checked)}
+                  className="rounded border-slate-300 text-brand focus:ring-brand"
+                />
                 <span>Remember this device</span>
               </label>
               <a href="#forgot" className="text-brand hover:underline">

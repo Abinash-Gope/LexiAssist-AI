@@ -8,7 +8,7 @@ interface ClauseDeconstructionCardProps {
   clause: ContractClause | undefined;
 }
 
-export const ClauseDeconstructionCard: React.FC<ClauseDeconstructionCardProps> = ({
+const ClauseDeconstructionCardComponent: React.FC<ClauseDeconstructionCardProps> = ({
   clause,
 }) => {
   const [copied, setCopied] = useState(false);
@@ -134,3 +134,5 @@ export const ClauseDeconstructionCard: React.FC<ClauseDeconstructionCardProps> =
     </Card>
   );
 };
+
+export const ClauseDeconstructionCard = React.memo(ClauseDeconstructionCardComponent);

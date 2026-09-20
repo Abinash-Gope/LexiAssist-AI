@@ -23,7 +23,7 @@ interface DualColumnRedlineProps {
   counterVersion?: string;
 }
 
-export const DualColumnRedline: React.FC<DualColumnRedlineProps> = ({
+const DualColumnRedlineComponent: React.FC<DualColumnRedlineProps> = ({
   clauses,
   selectedDiffClauseId,
   onSelectDiffClause,
@@ -35,6 +35,7 @@ export const DualColumnRedline: React.FC<DualColumnRedlineProps> = ({
 }) => {
   const leftColRef = useRef<HTMLDivElement>(null);
   const rightColRef = useRef<HTMLDivElement>(null);
+  const isSyncingRef = useRef(false);
   const [copiedClauseId, setCopiedClauseId] = useState<string | null>(null);
 
   const handleCopyClause = (text: string, id: string, e: React.MouseEvent) => {
@@ -45,15 +46,23 @@ export const DualColumnRedline: React.FC<DualColumnRedlineProps> = ({
   };
 
   const handleLeftScroll = () => {
-    if (isSyncScrollLocked && leftColRef.current && rightColRef.current) {
-      rightColRef.current.scrollTop = leftColRef.current.scrollTop;
-    }
+    if (!isSyncScrollLocked || !leftColRef.current || !rightColRef.current) return;
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    rightColRef.current.scrollTop = leftColRef.current.scrollTop;
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
   };
 
   const handleRightScroll = () => {
-    if (isSyncScrollLocked && leftColRef.current && rightColRef.current) {
-      leftColRef.current.scrollTop = rightColRef.current.scrollTop;
-    }
+    if (!isSyncScrollLocked || !leftColRef.current || !rightColRef.current) return;
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    leftColRef.current.scrollTop = rightColRef.current.scrollTop;
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
   };
 
   return (
@@ -233,3 +242,6 @@ export const DualColumnRedline: React.FC<DualColumnRedlineProps> = ({
     </div>
   );
 };
+
+export const DualColumnRedline = React.memo(DualColumnRedlineComponent);
+

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Scale, ArrowRight, Menu, X, Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated, user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const publicNavLinks = [
@@ -56,28 +58,47 @@ export const Navbar: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Desktop CTAs: Route to Login */}
+          {/* Right Desktop CTAs: Dynamic based on auth status */}
           <div className="hidden md:flex items-center gap-2.5 flex-shrink-0">
-            <Link
-              to="/login"
-              className="text-xs font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100/60 transition-colors whitespace-nowrap"
-            >
-              Sign In
-            </Link>
-
-            <Link to="/login" className="flex-shrink-0">
-              <Button size="sm" variant="brand" className="text-xs font-semibold shadow-sm px-3.5 h-8 gap-1.5 rounded-lg whitespace-nowrap">
-                <span>Get Started</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-xs font-semibold text-slate-700 hover:text-brand px-3 py-1.5 rounded-lg hover:bg-slate-100/60 transition-colors whitespace-nowrap"
+                >
+                  <span className="text-slate-500 font-normal mr-1">Hi,</span>
+                  <span className="font-bold">{user?.name?.split(' ')[0] || 'Counsel'}</span>
+                </Link>
+                <Link to="/dashboard" className="flex-shrink-0">
+                  <Button size="sm" variant="brand" className="text-xs font-semibold shadow-sm px-3.5 h-8 gap-1.5 rounded-lg whitespace-nowrap">
+                    <span>Open Workspace</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-xs font-semibold text-slate-600 hover:text-primary px-3 py-1.5 rounded-lg hover:bg-slate-100/60 transition-colors whitespace-nowrap"
+                >
+                  Sign In
+                </Link>
+                <Link to="/login" className="flex-shrink-0">
+                  <Button size="sm" variant="brand" className="text-xs font-semibold shadow-sm px-3.5 h-8 gap-1.5 rounded-lg whitespace-nowrap">
+                    <span>Get Started</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Trigger */}
           <div className="flex md:hidden items-center gap-2">
-            <Link to="/login">
+            <Link to={isAuthenticated ? '/dashboard' : '/login'}>
               <Button size="sm" variant="brand" className="text-xs h-8 px-2.5">
-                Sign In
+                {isAuthenticated ? 'Studio' : 'Sign In'}
               </Button>
             </Link>
             <button
@@ -108,17 +129,28 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="pt-3 border-t border-border-light flex flex-col gap-2">
-            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-              <Button variant="outline" size="sm" className="w-full text-xs">
-                Sign In to Workspace
-              </Button>
-            </Link>
-            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-              <Button variant="brand" size="sm" className="w-full text-xs font-semibold">
-                <span>Get Started Free</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="brand" size="sm" className="w-full text-xs font-semibold">
+                  <span>Open Workspace Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full text-xs">
+                    Sign In to Workspace
+                  </Button>
+                </Link>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="brand" size="sm" className="w-full text-xs font-semibold">
+                    <span>Get Started Free</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
