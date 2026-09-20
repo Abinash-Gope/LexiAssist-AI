@@ -23,19 +23,9 @@ const loadInitialSession = (): AuthSessionState => {
     console.warn('Failed to parse stored auth session:', e);
   }
 
-  // Default guest profile ready for immediate hackathon judging
-  const defaultGuestUser: UserProfile = {
-    id: 'evaluator-guest-01',
-    name: 'Hackathon Evaluator',
-    email: 'judge@promptwars.ai',
-    role: 'EVALUATOR',
-    isGuest: true,
-    createdAt: new Date().toISOString(),
-  };
-
   return {
-    isAuthenticated: true, // Default to true so judges can immediately test without barriers
-    user: defaultGuestUser,
+    isAuthenticated: false,
+    user: null,
   };
 };
 

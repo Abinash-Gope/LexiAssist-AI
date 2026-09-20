@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Scale, ShieldCheck, Zap, Lock, ArrowRight } from 'lucide-react';
+import { Scale, ShieldCheck, Zap, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { CompliancePill } from '@/components/ui/CompliancePill';
@@ -11,14 +11,20 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
   const { login, loginAsGuest } = useAuth();
 
-  const [email, setEmail] = useState('counsel@lexiassist.ai');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const from = (location.state as any)?.from?.pathname || '/dashboard';
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login({ email, password });
+    setError(null);
+    const result = login({ email, password });
+    if (!result.success) {
+      setError(result.error || 'Authentication failed. Please check your credentials.');
+      return;
+    }
     navigate(from, { replace: true });
   };
 
@@ -108,7 +114,45 @@ export const LoginPage: React.FC = () => {
             </span>
           </div>
 
+          {error && (
+            <div
+              role="alert"
+              className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700 animate-fade-in"
+            >
+              <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 space-y-1">
+                <p className="font-semibold">{error}</p>
+                {error.includes('No account found') && (
+                  <Link
+                    to="/signup"
+                    className="inline-block text-brand font-bold hover:underline"
+                  >
+                    Click here to create a free account →
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleLoginSubmit} className="space-y-4">
+            {/* Quick Demo Helper */}
+            <div className="flex items-center justify-between text-[11px] bg-slate-50 px-3 py-2 rounded-lg border border-slate-200/80">
+              <span className="text-slate-600">
+                Demo Account: <code className="text-slate-800 font-semibold font-mono">counsel@lexiassist.ai</code>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('counsel@lexiassist.ai');
+                  setPassword('password123');
+                  setError(null);
+                }}
+                className="text-brand font-semibold hover:underline cursor-pointer ml-2 whitespace-nowrap"
+              >
+                Use Demo
+              </button>
+            </div>
+
             <Input
               label="Work or Personal Email"
               type="email"

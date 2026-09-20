@@ -32,3 +32,18 @@ export interface SignUpPayload {
   password?: string;
   role: UserRole;
 }
+
+export interface RegisteredUser {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: UserRole;
+  createdAt: string;
+}
+
+export interface AuthResult {
+  success: boolean;
+  error?: string;
+  user?: UserProfile;
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Scale, ShieldCheck, Zap, Lock } from 'lucide-react';
+import { Scale, ShieldCheck, Zap, Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { CompliancePill } from '@/components/ui/CompliancePill';
@@ -16,16 +16,22 @@ export const SignUpPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('TENANT');
   const [consentChecked, setConsentChecked] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (!consentChecked) {
-      alert(
+      setError(
         'Please acknowledge that LexiAssist AI provides document analysis and legal information, not certified legal counsel.'
       );
       return;
     }
-    signUp({ name: fullName, email, password, role });
+    const result = signUp({ name: fullName, email, password, role });
+    if (!result.success) {
+      setError(result.error || 'Account creation failed. Please try again.');
+      return;
+    }
     navigate('/dashboard');
   };
 
@@ -103,6 +109,26 @@ export const SignUpPage: React.FC = () => {
               1-Click Guest Access
             </Button>
           </div>
+
+          {error && (
+            <div
+              role="alert"
+              className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-700 animate-fade-in"
+            >
+              <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 space-y-1">
+                <p className="font-semibold">{error}</p>
+                {error.includes('already exists') && (
+                  <Link
+                    to="/login"
+                    className="inline-block text-brand font-bold hover:underline"
+                  >
+                    Click here to sign in instead →
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSignUpSubmit} className="space-y-4">
             <Input
