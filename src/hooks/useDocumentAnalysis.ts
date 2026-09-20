@@ -13,7 +13,7 @@ import {
   setActivePreset,
 } from '@/state/slices/contractUiSlice';
 import { useAnalyzeQuery } from '@/state/queries/useAnalyzeQuery';
-import { ContractClause, RiskSeverity } from '@/core/types/contract.types';
+import { ContractClause } from '@/core/types/contract.types';
 
 export function useDocumentAnalysis() {
   const dispatch = useAppDispatch();

@@ -12,9 +12,11 @@ export const ENV = {
   NVIDIA_NIM_API_KEY: import.meta.env.VITE_NVIDIA_NIM_API_KEY || '',
   NVIDIA_NIM_MODEL:
     import.meta.env.VITE_NVIDIA_NIM_MODEL || 'meta/llama-3.2-11b-vision-instruct',
-  NVIDIA_NIM_ENDPOINT:
-    typeof window !== 'undefined' && window.location.origin.includes('localhost') || typeof window !== 'undefined' && window.location.origin.includes('127.0.0.1')
-      ? '/api/nvidia/v1/chat/completions'
-      : 'https://integrate.api.nvidia.com/v1/chat/completions',
+  NVIDIA_NIM_ENDPOINT: (() => {
+    if (typeof window === 'undefined') return 'https://integrate.api.nvidia.com/v1/chat/completions';
+    const origin = window.location.origin;
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
+    return isLocal ? '/api/nvidia/v1/chat/completions' : 'https://integrate.api.nvidia.com/v1/chat/completions';
+  })(),
   ENABLE_LOCAL_MOCK_FALLBACK: true, // Guarantees seamless demo operation even if user has no API key entered
 } as const;

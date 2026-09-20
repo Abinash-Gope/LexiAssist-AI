@@ -160,6 +160,23 @@ export const ComparePage: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Security guards: restrict to text formats, cap at 500 KB
+    const ALLOWED_EXTENSIONS = ['.txt', '.md', '.text'];
+    const MAX_SIZE_BYTES = 500 * 1024;
+    const hasAllowedExt = ALLOWED_EXTENSIONS.some((ext) =>
+      file.name.toLowerCase().endsWith(ext)
+    );
+    if (!hasAllowedExt) {
+      alert('Only plain text files (.txt, .md) are supported for contract upload.');
+      e.target.value = ''; // reset input
+      return;
+    }
+    if (file.size > MAX_SIZE_BYTES) {
+      alert(`File size must be under 500 KB. Your file is ${(file.size / 1024).toFixed(0)} KB.`);
+      e.target.value = ''; // reset input
+      return;
+    }
+
     if (version === 1) {
       setCustomV1Name(file.name);
     } else {

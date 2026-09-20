@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { ZoomIn, ZoomOut, Search, FileText, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
-import { ContractDocument, ContractClause } from '@/core/types/contract.types';
+import { ContractDocument, ContractClause, RiskSeverity } from '@/core/types/contract.types';
 
 interface DocumentViewerProps {
   document: ContractDocument | undefined;
@@ -30,7 +30,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   onZoomChange,
   citationPulseId,
 }) => {
-  const clauseRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const clauseRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const [pulsingId, setPulsingId] = useState<string | null>(null);
 
   // Scroll to selected clause whenever it changes
@@ -62,9 +62,11 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   }
 
   const allCount = document.clauses.length;
-  const highCount = document.clauses.filter((c) => c.severity === 'HIGH').length;
-  const mediumCount = document.clauses.filter((c) => c.severity === 'MEDIUM').length;
-  const lowCount = document.clauses.filter((c) => c.severity === 'LOW').length;
+  // Single-pass count instead of three separate .filter() traversals
+  const { HIGH: highCount, MEDIUM: mediumCount, LOW: lowCount } = document.clauses.reduce(
+    (acc, c) => { acc[c.severity]++; return acc; },
+    { HIGH: 0, MEDIUM: 0, LOW: 0 } as Record<RiskSeverity, number>
+  );
 
   const displayClauses = filteredClauses ?? document.clauses;
 
@@ -78,6 +80,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
           <input
             type="text"
             placeholder="Search contract clauses..."
+            id="clause-search"
+            aria-label="Search contract clauses"
             value={searchFilter}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 text-xs bg-surface-dim border border-border-light rounded-md focus:outline-none focus:ring-1 focus:ring-brand"
@@ -95,6 +99,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
             <button
               key={id}
               onClick={() => onRiskFilterChange(id)}
+              aria-pressed={activeRiskFilter === id}
+              aria-label={`Filter by ${id === 'ALL' ? 'all risks' : `${id.toLowerCase()} risk`}`}
               className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-all ${
                 activeRiskFilter === id
                   ? 'bg-primary text-white shadow-xs'
@@ -208,10 +214,20 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                 const isPulsing = clause.id === pulsingId;
 
                 return (
-                  <div
+                  <article
                     key={clause.id}
                     ref={(el) => (clauseRefs.current[clause.id] = el)}
+                    role="button"
+                    tabIndex={0}
+                    aria-selected={isSelected}
+                    aria-label={`${clause.sectionNumber}: ${clause.title} — ${clause.severity} risk level`}
                     onClick={() => onSelectClause(clause.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelectClause(clause.id);
+                      }
+                    }}
                     className={`p-4 rounded-r-lg transition-all cursor-pointer ${riskBorder} ${riskBg} ${
                       isSelected ? 'ring-1 ring-slate-400/50 shadow-sm' : ''
                     } ${isPulsing ? 'citation-pulse-glow' : ''}`}
@@ -238,7 +254,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
                     <p className="text-slate-800 selection:bg-amber-200">
                       {clause.originalText}
                     </p>
-                  </div>
+                  </article>
                 );
               })
             )}

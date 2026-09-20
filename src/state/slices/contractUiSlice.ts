@@ -71,43 +71,21 @@ export const contractUiSlice = createSlice({
     setActivePreset: (state, action: PayloadAction<PresetType>) => {
       state.activePreset = action.payload;
       state.selectedClauseId = action.payload === 'LEASE' ? 'lease-c5' : action.payload === 'MSA' ? 'msa-c3' : null;
-      try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('lexiassist_active_preset', action.payload);
-        }
-      } catch (e) {
-        console.warn('Could not save preset to localStorage', e);
-      }
+      // Persistence is handled by the listener middleware in store.ts
     },
     setCustomContract: (state, action: PayloadAction<{ text: string; title: string }>) => {
       state.customContractText = action.payload.text;
       state.customContractTitle = action.payload.title;
       state.activePreset = 'CUSTOM';
       state.selectedClauseId = null;
-      try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('lexiassist_custom_text', action.payload.text);
-          localStorage.setItem('lexiassist_custom_title', action.payload.title);
-          localStorage.setItem('lexiassist_active_preset', 'CUSTOM');
-        }
-      } catch (e) {
-        console.warn('Could not save custom contract to localStorage', e);
-      }
+      // Persistence is handled by the listener middleware in store.ts
     },
     clearCustomContract: (state) => {
       state.customContractText = '';
       state.customContractTitle = '';
       state.activePreset = 'LEASE';
       state.selectedClauseId = 'lease-c5';
-      try {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('lexiassist_custom_text');
-          localStorage.removeItem('lexiassist_custom_title');
-          localStorage.setItem('lexiassist_active_preset', 'LEASE');
-        }
-      } catch (e) {
-        console.warn('Could not clear custom contract in localStorage', e);
-      }
+      // Persistence is handled by the listener middleware in store.ts
     },
     setSelectedClauseId: (state, action: PayloadAction<string | null>) => {
       state.selectedClauseId = action.payload;
